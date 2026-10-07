@@ -227,11 +227,13 @@ function renderReport() {
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
       <div class="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 flex items-start gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <div class="text-sm">
-          <strong>Acompanyament de l'Escola d'Agents activat:</strong> En haver indicat que és el teu primer agent, la còpia enviada per correu servirà perquè l'Escola d'Agents es posi en contacte amb tu per assistir-te en el seu desenvolupament.
+        <div class="text-sm space-y-1">
+          <strong class="font-semibold text-base block">Vols l'ajuda de l'Escola d'Agents?</strong>
+          <p>Has indicat que és el teu primer agent. Perquè l'Escola d'Agents et pugui acompanyar, <strong>recorda prémer el botó "Enviar per correu"</strong> al final d'aquesta pàgina.</p>
+          <p class="text-xs text-blue-700 dark:text-blue-300"><em>(El botó de descarregar només guarda una còpia al teu ordinador i no notifica a l'equip).</em></p>
         </div>
       </div>
     `;
@@ -277,17 +279,18 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Aclariment del procediment d'enviament -->
-    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-2">
-      <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Aclariment de les opcions de descàrrega / enviament -->
+    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3">
+      <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        Què passa quan envies aquest informe a Governança d'IA?
+        Quina opció he de triar?
       </p>
-      <p>1. En clicar el botó <strong>"Enviar per correu"</strong>, s'obrirà automàticament el teu programa de correu (Outlook o web) amb la bústia oficial <code>${EMAIL_GOVERNANCA}</code> i el text de l'informe preemplenat.</p>
-      <p>2. L'equip de Governança d'IA registrarà la sol·licitud i la informació del cas d'ús al directori corporatiu.</p>
-      <p>3. En cas que hagueis marcat la casella de primer agent, l'Escola d'Agents rebrà la notificació per contactar amb tu a través de <code>${escapeHtml(state.emailContacte)}</code> i guiar-te pas a pas en el desenvolupament.</p>
+      <ul class="space-y-2 list-disc pl-5">
+        <li><strong>Descarregar informe (.md):</strong> Baixa el document al teu ordinador. Utilitza aquesta opció si només vols guardar el resultat per als teus arxius personals.</li>
+        <li><strong>Enviar per correu:</strong> Obre el teu programa de correu amb l'informe adreçat a <code>${EMAIL_GOVERNANCA}</code>. <strong>Aquesta és l'opció necessària</strong> per registrar el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
+      </ul>
     </div>
   `;
 }
