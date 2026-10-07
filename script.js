@@ -269,7 +269,7 @@ function renderReport() {
 
     <!-- Dades de contacte -->
     <div class="report-body-text mb-6">
-      <p><strong>Dades de contacte:</strong> Adreceu-vos al referent d'automatització i IA del departament o ens <strong>${escapeHtml(state.departament)}</strong> segons la llista corporativa de SharePoint.</p>
+      <p><strong>Dades de contacte:</strong> Busqueu el <strong>referent d'automatització i IA</strong> de <strong>${escapeHtml(state.departament)}</strong> directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.</p>
     </div>
 
     <!-- Frase literal de tancament -->
@@ -320,7 +320,7 @@ function generateMarkdownReport() {
   md += `--- \n\n`;
   md += `### Resultat de la valoració: NIVELL FINAL ${finalLevel}\n\n`;
   md += `> "${normativeTexts[finalLevel]}"\n\n`;
-  md += `**Dades de contacte:** Adreceu-vos al referent d'automatització i IA del departament o ens **${state.departament}** segons la llista corporativa de SharePoint.\n\n`;
+  md += `**Dades de contacte:** Busqueu el **referent d'automatització i IA** de **${state.departament}** directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.\n\n`;
   md += `*Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.*\n`;
 
   return md;
