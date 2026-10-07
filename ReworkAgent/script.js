@@ -1,6 +1,7 @@
 // Memòria de l'estat de l'avaluació
 const state = {
   departament: '',
+  emailContacte: '',
   proces: '',
   esPrimerAgent: false,
   answers: {
@@ -14,7 +15,7 @@ const state = {
   computedQuestionLevels: {}
 };
 
-// Adreça de correu de destinació (Placeholder)
+// Adreça de correu de destinació de Governança
 const EMAIL_GOVERNANCA = "governanca.ia@gencat.cat";
 
 // Mapa d'opcions a nivells
@@ -93,17 +94,22 @@ const progressPercentages = {
 // Fase 1: Validar i desar context
 function submitContext() {
   const deptInput = document.getElementById('departament').value.trim();
+  const emailInput = document.getElementById('email-contacte').value.trim();
   const procInput = document.getElementById('proces').value.trim();
   const isFirstAgent = document.getElementById('primer-agent').checked;
   const err = document.getElementById('error-0');
 
-  if (!deptInput || !procInput) {
+  // Validació bàsica de correu
+  const isEmailValid = emailInput.includes('@') && emailInput.includes('.');
+
+  if (!deptInput || !procInput || !emailInput || !isEmailValid) {
     err.classList.remove('hidden');
     return;
   }
 
   err.classList.add('hidden');
   state.departament = deptInput;
+  state.emailContacte = emailInput;
   state.proces = procInput;
   state.esPrimerAgent = isFirstAgent;
 
@@ -225,7 +231,7 @@ function renderReport() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="text-sm">
-          <strong>Primer desenvolupament / sol·licitud d'agent:</strong> S'ha indicat que aquest és el teu primer agent d'IA. Recorda utilitzar el botó <strong>"Enviar per correu"</strong> per trametre la còpia d'aquest informe a la bústia de governança (<code>${EMAIL_GOVERNANCA}</code>).
+          <strong>Acompanyament de l'Escola d'Agents activat:</strong> En haver indicat que és el teu primer agent, la còpia enviada per correu servirà perquè l'Escola d'Agents es posi en contacte amb tu per assistir-te en el seu desenvolupament.
         </div>
       </div>
     `;
@@ -240,13 +246,14 @@ function renderReport() {
     <!-- Resum del cas -->
     <div class="report-body-text mb-6 space-y-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
       <p><strong>Departament / Ens:</strong> ${escapeHtml(state.departament)}</p>
+      <p><strong>Correu de contacte:</strong> ${escapeHtml(state.emailContacte)}</p>
       <p><strong>Procés i Finalitat:</strong> ${escapeHtml(state.proces)}</p>
-      <p><strong>Primer agent desenvolupat:</strong> ${state.esPrimerAgent ? 'Sí' : 'No'}</p>
+      <p><strong>Primer agent desenvolupat:</strong> ${state.esPrimerAgent ? "Sí (Sol·licita suport a l'Escola d'Agents)" : 'No'}</p>
     </div>
 
     <!-- Anàlisi de respostes -->
     <div class="report-body-text mb-6">
-      <h3 class="font-bold text-slate-900 dark:text-white mb-2">Anàlisi de respostes (referència: Politica_us_IA_Generalitat_EnRevisio_V2):</h3>
+      <h3 class="font-bold text-slate-900 dark:text-white mb-2">Anàlisi de respostes:</h3>
       ${analysisHTML}
     </div>
 
@@ -269,6 +276,19 @@ function renderReport() {
     <div class="report-body-text pt-4 border-t border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
+
+    <!-- Aclariment del procediment d'enviament -->
+    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-2">
+      <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Què passa quan envies aquest informe a Governança d'IA?
+      </p>
+      <p>1. En clicar el botó <strong>"Enviar per correu"</strong>, s'obrirà automàticament el teu programa de correu (Outlook o web) amb la bústia oficial <code>${EMAIL_GOVERNANCA}</code> i el text de l'informe preemplenat.</p>
+      <p>2. L'equip de Governança d'IA registrarà la sol·licitud i la informació del cas d'ús al directori corporatiu.</p>
+      <p>3. En cas que hagueis marcat la casella de primer agent, l'Escola d'Agents rebrà la notificació per contactar amb tu a través de <code>${escapeHtml(state.emailContacte)}</code> i guiar-te pas a pas en el desenvolupament.</p>
+    </div>
   `;
 }
 
@@ -279,11 +299,12 @@ function generateMarkdownReport() {
 
   let md = `# Informe de valoració del nivell d'un cas d'ús de IA\n\n`;
   md += `**Departament / Ens:** ${state.departament}\n`;
+  md += `**Correu de contacte:** ${state.emailContacte}\n`;
   md += `**Procés i Finalitat:** ${state.proces}\n`;
-  md += `**Primer agent desenvolupat:** ${state.esPrimerAgent ? 'Sí' : 'No'}\n\n`;
+  md += `**Primer agent desenvolupat:** ${state.esPrimerAgent ? "Sí (Acompanyament per l'Escola d'Agents)" : 'No'}\n\n`;
 
   md += `--- \n\n`;
-  md += `### Anàlisi de respostes (referència: Politica_us_IA_Generalitat_EnRevisio_V2):\n\n`;
+  md += `### Anàlisi de respostes:\n\n`;
 
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
@@ -351,11 +372,13 @@ function escapeHtml(str) {
 
 function resetEvaluation() {
   state.departament = '';
+  state.emailContacte = '';
   state.proces = '';
   state.esPrimerAgent = false;
   state.answers = { p1: [], p2: [], p3: [], p4: [], p5: [] };
 
   document.getElementById('departament').value = '';
+  document.getElementById('email-contacte').value = '';
   document.getElementById('proces').value = '';
   document.getElementById('primer-agent').checked = false;
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
