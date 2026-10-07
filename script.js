@@ -334,10 +334,10 @@ function downloadMarkdown() {
   const mdText = generateMarkdownReport();
   const blob = new Blob([mdText], { type: 'text/markdown;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   const safeDept = state.departament.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  
+
   link.href = url;
   link.setAttribute('download', `informe_avaluacio_ia_${safeDept}.md`);
   document.body.appendChild(link);
