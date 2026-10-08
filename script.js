@@ -1,9 +1,13 @@
+// Clau per al desat a la memòria local
+const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
+
 // Memòria de l'estat de l'avaluació
 const state = {
   departament: '',
   emailContacte: '',
   proces: '',
   esPrimerAgent: false,
+  currentStep: 0,
   answers: {
     p1: [],
     p2: [],
@@ -16,7 +20,7 @@ const state = {
 };
 
 // Adreça de correu de destinació de Governança
-const EMAIL_GOVERNANCA = "governanca.ia@gencat.cat";
+const EMAIL_GOVERNANCA = "judith.mimoso@gencat.cat";
 
 // Mapa d'opcions a nivells
 const optionLevels = {
@@ -91,18 +95,76 @@ const progressPercentages = {
   'result': '100%'
 };
 
+// Carregador inicial i restauració des de localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  restoreStateFromLocalStorage();
+});
+
+// Desat de l'estat actual a localStorage
+function saveStateToLocalStorage() {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("No s'ha pogut desar l'estat a localStorage:", e);
+  }
+}
+
+// Restauració de l'estat des de localStorage
+function restoreStateFromLocalStorage() {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+    Object.assign(state, parsed);
+
+    // Restaurar valors als camps de context
+    document.getElementById('departament').value = state.departament || '';
+    document.getElementById('email-contacte').value = state.emailContacte || '';
+    document.getElementById('proces').value = state.proces || '';
+    document.getElementById('primer-agent').checked = state.esPrimerAgent || false;
+
+    // Restaurar caselles de selecció de les preguntes
+    for (let i = 1; i <= 5; i++) {
+      const qKey = `p${i}`;
+      const savedAnswers = state.answers[qKey] || [];
+      document.querySelectorAll(`input[name="${qKey}"]`).forEach(cb => {
+        cb.checked = savedAnswers.includes(cb.value);
+      });
+    }
+
+    // Navegar on s'havia quedat l'usuari
+    if (state.currentStep === 'result') {
+      renderReport();
+      goToStep('result', false);
+    } else if (typeof state.currentStep === 'number' && state.currentStep >= 0 && state.currentStep <= 5) {
+      goToStep(state.currentStep, false);
+    }
+  } catch (e) {
+    console.error("Error restaurant les dades des de localStorage:", e);
+  }
+}
+
 // Fase 1: Validar i desar context
 function submitContext() {
-  const deptInput = document.getElementById('departament').value.trim();
-  const emailInput = document.getElementById('email-contacte').value.trim();
-  const procInput = document.getElementById('proces').value.trim();
+  const deptElem = document.getElementById('departament');
+  const emailElem = document.getElementById('email-contacte');
+  const procElem = document.getElementById('proces');
+  const deptInput = deptElem.value.trim();
+  const emailInput = emailElem.value.trim();
+  const procInput = procElem.value.trim();
   const isFirstAgent = document.getElementById('primer-agent').checked;
   const err = document.getElementById('error-0');
 
-  // Validació bàsica de correu
   const isEmailValid = emailInput.includes('@') && emailInput.includes('.');
+  const isValid = deptInput && procInput && emailInput && isEmailValid;
 
-  if (!deptInput || !procInput || !emailInput || !isEmailValid) {
+  // Accessibilitat: actualitzar aria-invalid
+  deptElem.setAttribute('aria-invalid', !deptInput);
+  emailElem.setAttribute('aria-invalid', !emailInput || !isEmailValid);
+  procElem.setAttribute('aria-invalid', !procInput);
+
+  if (!isValid) {
     err.classList.remove('hidden');
     return;
   }
@@ -113,10 +175,11 @@ function submitContext() {
   state.proces = procInput;
   state.esPrimerAgent = isFirstAgent;
 
+  saveStateToLocalStorage();
   goToStep(1);
 }
 
-// Fase 2: Navegació
+// Fase 2: Navegació endavant
 function nextQuestion(qNum) {
   const selected = Array.from(document.querySelectorAll(`input[name="p${qNum}"]:checked`)).map(c => c.value);
   const err = document.getElementById(`error-${qNum}`);
@@ -129,11 +192,22 @@ function nextQuestion(qNum) {
   err.classList.add('hidden');
   state.answers[`p${qNum}`] = selected;
 
+  saveStateToLocalStorage();
   goToStep(qNum + 1);
 }
 
-// Canvi de pantalla i actualització de progrés
-function goToStep(stepNum) {
+// Botó "Enrere" per rectificar respostes
+function prevStep() {
+  if (typeof state.currentStep === 'number' && state.currentStep > 0) {
+    goToStep(state.currentStep - 1);
+  } else if (state.currentStep === 'result') {
+    goToStep(5);
+  }
+}
+
+// Canvi de pantalla, actualització de progrés i gestió del focus (Accessibilitat)
+function goToStep(stepNum, shouldFocus = true) {
+  state.currentStep = stepNum;
   document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
 
   const topBar = document.getElementById('top-progress-bar');
@@ -145,21 +219,37 @@ function goToStep(stepNum) {
     topBar.style.width = progressPercentages[stepNum];
   }
 
+  let activeCardId = 'step-0';
+
   if (stepNum === 0) {
     if (progressBar) progressBar.classList.remove('hidden');
     if (stepLabel) stepLabel.innerText = "Fase 1: Context Inicial";
     if (stepCount) stepCount.innerText = "Pas 1 de 6";
-    document.getElementById('step-0').classList.remove('hidden');
+    activeCardId = 'step-0';
   } else if (typeof stepNum === 'number' && stepNum >= 1 && stepNum <= 5) {
     if (progressBar) progressBar.classList.remove('hidden');
     if (stepLabel) stepLabel.innerText = "Fase 2: Qüestionari d'Avaluació";
     if (stepCount) stepCount.innerText = `Pas ${stepNum + 1} de 6`;
-    document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+    activeCardId = `step-${stepNum}`;
   } else if (stepNum === 'result') {
     if (progressBar) progressBar.classList.add('hidden');
-    document.getElementById('step-result').classList.remove('hidden');
+    activeCardId = 'step-result';
   }
 
+  const activeCard = document.getElementById(activeCardId);
+  if (activeCard) {
+    activeCard.classList.remove('hidden');
+    
+    // WCAG Accessibilitat: Enfocar el títol del pas per als lectors de pantalla
+    if (shouldFocus) {
+      const heading = activeCard.querySelector('h2');
+      if (heading) {
+        heading.focus();
+      }
+    }
+  }
+
+  saveStateToLocalStorage();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -222,18 +312,17 @@ function renderReport() {
     `;
   }
 
-  // Notificació especial si és el primer agent
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
-      <div class="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 flex items-start gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 flex items-start gap-3 no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="text-sm space-y-1">
-          <strong class="font-semibold text-base block">Vols l'ajuda de l'Escola d'Agents?</strong>
-          <p>Has indicat que és el teu primer agent. Perquè l'Escola d'Agents et pugui acompanyar, <strong>recorda prémer el botó "Enviar per correu"</strong> al final d'aquesta pàgina.</p>
-          <p class="text-xs text-blue-700 dark:text-blue-300"><em>(El botó de descarregar només guarda una còpia al teu ordinador i no notifica a l'equip).</em></p>
+          <strong class="font-semibold text-base block">Sol·licitud d'acompanyament de l'Escola d'Agents</strong>
+          <p>Heu indicat que és el vostre primer agent. Perquè l'Escola d'Agents us pugui acompanyar, <strong>recordeu prémer el botó "Enviar per correu"</strong> al final d'aquesta pàgina.</p>
+          <p class="text-xs text-blue-700 dark:text-blue-300"><em>(L'opció de descarregar o copiar el text no envia cap notificació automàtica a l'equip de Governança).</em></p>
         </div>
       </div>
     `;
@@ -243,7 +332,7 @@ function renderReport() {
     ${firstAgentNoticeHTML}
 
     <!-- Títol principal -->
-    <h2 class="report-title mb-4">Informe de valoració del nivell d'un cas d'ús de IA</h2>
+    <h2 id="heading-step-result" tabindex="-1" class="report-title mb-4 focus:outline-none">Informe de valoració del nivell d'un cas d'ús de IA</h2>
 
     <!-- Resum del cas -->
     <div class="report-body-text mb-6 space-y-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -279,17 +368,19 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Aclariment de les opcions de descàrrega / enviament -->
-    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3">
+    <!-- Aclariment de les opcions d'acció -->
+    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3 no-print">
       <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        Quina opció he de triar?
+        Indicacions per a la tramitació de l'informe:
       </p>
       <ul class="space-y-2 list-disc pl-5">
-        <li><strong>Descarregar informe (.md):</strong> Baixa el document al teu ordinador. Utilitza aquesta opció si només vols guardar el resultat per als teus arxius personals.</li>
-        <li><strong>Enviar per correu:</strong> Obre el teu programa de correu amb l'informe adreçat a <code>${EMAIL_GOVERNANCA}</code>. <strong>Aquesta és l'opció necessària</strong> per registrar el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
+        <li><strong>Enviar per correu:</strong> Obre el gestor de correu electrònic amb l'informe dirigit a <code>${EMAIL_GOVERNANCA}</code>. Aquest pas és necessari per registrar oficialment el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
+        <li><strong>Copiar text:</strong> Copia el contingut íntegre de l'informe al portapapers per enganxar-lo en aplicacions com Outlook Web o Microsoft Teams.</li>
+        <li><strong>Descarregar informe (.md):</strong> Desa una còpia del document en format Markdown al vostre equip.</li>
+        <li><strong>Imprimir / Desar en PDF:</strong> Genera un document en format PDF maquetat per a expedients o arxius interns.</li>
       </ul>
     </div>
   `;
@@ -327,6 +418,31 @@ function generateMarkdownReport() {
   md += `*Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.*\n`;
 
   return md;
+}
+
+// Botó "Copiar text de l'informe" al portapapers
+function copyReportToClipboard() {
+  const mdText = generateMarkdownReport();
+  navigator.clipboard.writeText(mdText).then(() => {
+    const copyBtn = document.getElementById('btn-copy-report');
+    if (copyBtn) {
+      const originalText = copyBtn.innerHTML;
+      copyBtn.innerHTML = `Copiat al portapapers`;
+      copyBtn.classList.add('bg-emerald-600', 'text-white');
+      setTimeout(() => {
+        copyBtn.innerHTML = originalText;
+        copyBtn.classList.remove('bg-emerald-600', 'text-white');
+      }, 2500);
+    }
+  }).catch(err => {
+    alert("No s'ha pogut copiar el text automàticament. Seleccioneu el text manualment.");
+    console.error('Error en copiar: ', err);
+  });
+}
+
+// Imprimir / Desar en PDF
+function printReport() {
+  window.print();
 }
 
 // Descarregar fitxer .md
@@ -373,6 +489,14 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+// Confirmació de seguretat per reiniciar l'avaluació
+function confirmResetEvaluation() {
+  const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");
+  if (confirmed) {
+    resetEvaluation();
+  }
+}
+
 function resetEvaluation() {
   state.departament = '';
   state.emailContacte = '';
@@ -386,5 +510,37 @@ function resetEvaluation() {
   document.getElementById('primer-agent').checked = false;
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  } catch (e) {
+    console.warn("Error en esborrar localStorage:", e);
+  }
+
   goToStep(0);
 }
+
+// Navegació ràpida amb la tecla ENTER
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON')) return;
+
+    const visibleStep = document.querySelector('.step-card:not(.hidden)');
+    if (!visibleStep) return;
+
+    const stepId = visibleStep.id;
+
+    if (stepId === 'step-0') {
+      e.preventDefault();
+      submitContext();
+    } else if (stepId.startsWith('step-') && stepId !== 'step-result') {
+      const qNum = parseInt(stepId.replace('step-', ''), 10);
+      if (qNum >= 1 && qNum < 5) {
+        e.preventDefault();
+        nextQuestion(qNum);
+      } else if (qNum === 5) {
+        e.preventDefault();
+        calculateResult();
+      }
+    }
+  }
+});
