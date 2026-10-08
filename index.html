@@ -1,23 +1,13 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eina de Classificació de Casos d'Ús d'IA - Generalitat de Catalunya</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            gencat: '#CC0000',
-            gencatHover: '#A30000'
-          }
-        }
-      }
-    }
-  </script>
+
   <style type="text/tailwindcss">
     .btn-primary {
       @apply w-full sm:w-auto px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-medium rounded-lg transition-colors shadow-sm cursor-pointer disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700 text-center;
@@ -29,12 +19,13 @@
       @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
     }
 
-    /* Estils optimitzats per a la impressió / PDF (1 sola pàgina A4) */
+    /* Estils per a impressio i generacio de PDF (1 pagina A4) */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 1cm 1.2cm; /* Marges de pàgina reduïts */
+        margin: 0.8cm 1cm !important;
       }
+
       button, 
       #progress-bar-container, 
       #top-progress-bar,
@@ -43,362 +34,137 @@
       footer {
         display: none !important;
       }
+
       body {
         background: #ffffff !important;
         color: #000000 !important;
         padding: 0 !important;
         margin: 0 !important;
-        font-size: 11.5px !important; /* Mida de font reduïda per cabre en 1 pàgina */
-        line-height: 1.3 !important;
+        font-size: 10.5px !important;
+        line-height: 1.25 !important;
       }
+
       .step-card {
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
       }
+
+      h1 {
+        font-size: 1.3rem !important;
+        line-height: 1.2 !important;
+      }
       h2 {
-        font-size: 1.15rem !important;
-        margin-bottom: 0.5rem !important;
+        font-size: 1rem !important;
+        margin-bottom: 0.25rem !important;
       }
       h3 {
-        font-size: 0.95rem !important;
-        margin-bottom: 0.25rem !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 0.2rem !important;
       }
-      .mb-6, .my-6 {
-        margin-bottom: 0.5rem !important;
-        margin-top: 0.5rem !important;
+
+      .mb-6, .mb-5, .my-6 {
+        margin-bottom: 0.35rem !important;
+        margin-top: 0.25rem !important;
       }
+
       .p-4 {
-        padding: 0.4rem 0.6rem !important;
+        padding: 0.35rem 0.5rem !important;
       }
-      .mb-3 {
-        margin-bottom: 0.25rem !important;
+
+      .p-6 {
+        padding: 0 !important;
       }
-      .pl-3 {
-        padding-left: 0.5rem !important;
+
+      .space-y-4 > * + * {
+        margin-top: 0.35rem !important;
       }
-      .pt-4 {
-        padding-top: 0.5rem !important;
-      }
+
       #report-container {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
     }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
-  <!-- Barra superior de progrés general -->
-  <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 fixed top-0 left-0 z-50" aria-hidden="true">
-    <div id="top-progress-bar" class="bg-red-600 h-1.5 transition-all duration-300" style="width: 15%;"></div>
-  </div>
-
-  <!-- Capçalera principal -->
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 py-4 px-4 sm:px-8 mt-1 no-print" role="banner">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 bg-red-600 text-white font-bold rounded flex items-center justify-center text-sm" aria-hidden="true">GC</div>
-        <div>
-          <h1 class="font-bold text-lg text-slate-900 dark:text-white leading-tight">Eina de Classificació de Casos d'Ús d'IA</h1>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Generalitat de Catalunya</p>
+  <!-- Main Container -->
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    
+    <!-- CONTENIDOR DE L'INFORME FINAL -->
+    <div id="report-container" class="step-card bg-white p-6 rounded-xl border border-slate-200">
+      
+      <!-- Capcalera Corporativa -->
+      <div class="border-b-2 border-red-700 pb-3 mb-4 print:pb-2 print:mb-3">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Generalitat de Catalunya</span>
+          <span class="text-xs text-slate-500">Governança de la IA</span>
         </div>
+        <h1 class="text-2xl font-bold text-slate-900 print:text-xl">
+          Informe de Valoració del Cas d'Ús d'IA
+        </h1>
+        <p class="text-sm text-slate-600 mt-0.5 print:text-xs">
+          Avaluació del nivell de risc, autonomia i recomanacions d'implantació.
+        </p>
       </div>
-    </div>
-  </header>
 
-  <!-- Contenidor principal -->
-  <main class="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 md:p-8" id="main-content">
-
-    <!-- Indicador de fase i progrés -->
-    <div id="progress-bar-container" class="mb-6 bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm no-print" aria-live="polite">
-      <span id="step-label" class="font-semibold text-slate-700 dark:text-slate-200">Fase 1: Context Inicial</span>
-      <span id="step-count" class="text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full text-xs font-medium">Pas 1 de 6</span>
-    </div>
-
-    <!-- PAS 0: FASE 1 - CONTEXT -->
-    <section id="step-0" class="step-card" aria-labelledby="heading-step-0">
-      <h2 id="heading-step-0" tabindex="-1" class="text-xl font-bold mb-4 text-slate-900 dark:text-white focus:outline-none">Fase 1: Context del cas d'ús</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Empleneu les dades bàsiques abans de començar la valoració del nivell de la solució d'IA.</p>
-
-      <div class="space-y-4">
-        <div>
-          <label for="departament" class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-200">Departament / Ens <span class="text-red-500" aria-hidden="true">*</span></label>
-          <input type="text" id="departament" required aria-required="true" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Ex: Departament de la Presidència" />
-        </div>
-
-        <div>
-          <label for="email-contacte" class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-200">Correu electrònic de contacte <span class="text-red-500" aria-hidden="true">*</span></label>
-          <input type="email" id="email-contacte" required aria-required="true" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="nom.cognom@gencat.cat" />
-        </div>
-
-        <div>
-          <label for="proces" class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-200">Procés i finalitat de l'agent <span class="text-red-500" aria-hidden="true">*</span></label>
-          <textarea id="proces" rows="3" required aria-required="true" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Descriviu breument quin procés o tasca automatitzarà l'agent..."></textarea>
-        </div>
-
-        <div class="pt-2">
-          <label class="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" id="primer-agent" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-            <span class="text-sm text-slate-700 dark:text-slate-300">És el primer agent que desenvolupeu? (Sol·licita acompanyament de l'Escola d'Agents)</span>
-          </label>
+      <!-- Requadre de Dades Generals -->
+      <div class="bg-slate-50 p-4 rounded-lg mb-4 border border-slate-200 print:p-2.5 print:mb-2.5">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 print:mb-1">Dades de la sol·licitud</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm print:text-xs">
+          <p><strong>Departament / Ens:</strong> <span id="report-dept"></span></p>
+          <p><strong>Correu de contacte:</strong> <span id="report-email"></span></p>
+          <p><strong>Procés i Finalitat:</strong> <span id="report-proces"></span></p>
+          <p><strong>Primer agent desenvolupat:</strong> <span id="report-agent"></span></p>
         </div>
       </div>
 
-      <div id="error-0" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        S'han d'omplir tots els camps obligatoris amb un correu vàlid.
+      <!-- Analisi de Respostes -->
+      <div class="mb-4 print:mb-2.5">
+        <h2 class="text-base font-bold text-slate-900 mb-2 print:text-sm print:mb-1">Anàlisi de respostes:</h2>
+        <div id="report-answers" class="space-y-2 text-sm print:text-xs">
+          <!-- Les preguntes i nivells s'insereixen dinàmicament des de script.js -->
+        </div>
       </div>
 
-      <div class="mt-8 flex justify-end">
-        <button type="button" onclick="submitContext()" class="btn-primary">
-          Començar qüestionari
+      <!-- Resultat de la Valoracio -->
+      <div class="bg-slate-100 p-3 rounded-lg border border-slate-300 font-bold text-slate-900 mb-4 print:p-2 print:mb-2 print:text-xs">
+        Resultat de la valoració: <span id="report-final-level">NIVELL FINAL 1</span>
+      </div>
+
+      <!-- Text de Recomanacio i Contacte -->
+      <div class="text-sm text-slate-700 space-y-2 print:text-xs print:space-y-1">
+        <p id="report-recommendation" class="italic bg-slate-50 p-3 rounded border border-slate-200 print:p-2">
+          <!-- Text de recomanació dinàmic -->
+        </p>
+        
+        <p class="font-medium pt-1">
+          <strong>Dades de contacte:</strong> Busqueu el <strong>referent d'automatització i IA de <span id="report-dept-contact"></span></strong> directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.
+        </p>
+
+        <p class="text-slate-500 pt-1 border-t border-slate-200 text-xs print:pt-1">
+          Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
+        </p>
+      </div>
+
+      <!-- Botons d'Accio (Nomes visibles a la pantalla) -->
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 no-print">
+        <button onclick="window.print()" class="btn-primary">
+          Imprimir / Desar PDF
         </button>
-      </div>
-    </section>
-
-    <!-- PAS 1: PREGUNTA 1 -->
-    <section id="step-1" class="step-card hidden" aria-labelledby="heading-step-1">
-      <h2 id="heading-step-1" tabindex="-1" class="text-xl font-bold mb-2 text-slate-900 dark:text-white focus:outline-none">Pregunta 1: Utilitat principal de l'agent</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Seleccioneu totes les opcions que s'apliquin al vostre cas d'ús:</p>
-
-      <div class="space-y-3" role="group" aria-label="Opcions per a la pregunta 1">
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="A" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">A) Cercar o proporcionar informació dins la Generalitat</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="B" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">B) Extreure informació de documents o fonts de dades, i anàlisi o classificació</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="C" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">C) Creació, correcció, traducció o modificació de continguts</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="D" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">D) Validació de criteris a partir d'informació extreta de documents/fonts</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="E" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">E) Elaboració de conclusions a partir d'informació extreta de documents/fonts</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="F" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">F) Facilitar informació i respondre dubtes de la ciutadania</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p1" value="G" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">G) Desenvolupar aplicacions informàtiques i altres solucions tecnològiques</span>
-        </label>
-      </div>
-
-      <div id="error-1" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        Seleccioneu almenys una opció per continuar.
-      </div>
-
-      <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
-        <button type="button" onclick="prevStep()" class="btn-secondary">
-          Enrere
-        </button>
-        <button type="button" onclick="nextQuestion(1)" class="btn-primary">
-          Següent
-        </button>
-      </div>
-    </section>
-
-    <!-- PAS 2: PREGUNTA 2 -->
-    <section id="step-2" class="step-card hidden" aria-labelledby="heading-step-2">
-      <h2 id="heading-step-2" tabindex="-1" class="text-xl font-bold mb-2 text-slate-900 dark:text-white focus:outline-none">Pregunta 2: Nivell d'autonomia de l'agent</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Seleccioneu totes les opcions que s'apliquin:</p>
-
-      <div class="space-y-3" role="group" aria-label="Opcions per a la pregunta 2">
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p2" value="A" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">A) L'agent només 'parlarà amb l'usuari' (assistent conversacional)</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p2" value="B" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">B) L'agent automatitzarà algunes tasques que a dia d'avui fa l'usuari</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p2" value="C" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">C) L'agent actuarà de forma totalment autònoma sense instruccions puntuals</span>
-        </label>
-      </div>
-
-      <div id="error-2" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        Seleccioneu almenys una opció per continuar.
-      </div>
-
-      <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
-        <button type="button" onclick="prevStep()" class="btn-secondary">
-          Enrere
-        </button>
-        <button type="button" onclick="nextQuestion(2)" class="btn-primary">
-          Següent
-        </button>
-      </div>
-    </section>
-
-    <!-- PAS 3: PREGUNTA 3 -->
-    <section id="step-3" class="step-card hidden" aria-labelledby="heading-step-3">
-      <h2 id="heading-step-3" tabindex="-1" class="text-xl font-bold mb-2 text-slate-900 dark:text-white focus:outline-none">Pregunta 3: Tipus de dades utilitzades</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Seleccioneu totes les opcions que s'apliquin:</p>
-
-      <div class="space-y-3" role="group" aria-label="Opcions per a la pregunta 3">
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="A" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">A) Només informació pública (disponible a Internet)</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="B" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">B) Documents/fonts amb dades sobre persones jurídiques</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="C" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">C) Documents/fonts sobre seguretat, infraestructures o patrimoni</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="D" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">D) Documents/fonts sobre persones físiques majors d'edat</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="E" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">E) Documents/fonts sobre persones físiques menors d'edat o depenents</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="F" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">F) Documents/fonts sobre salut de les persones físiques</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p3" value="G" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">G) Decisions sobre drets fonamentals de les persones</span>
-        </label>
-      </div>
-
-      <div id="error-3" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        Seleccioneu almenys una opció per continuar.
-      </div>
-
-      <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
-        <button type="button" onclick="prevStep()" class="btn-secondary">
-          Enrere
-        </button>
-        <button type="button" onclick="nextQuestion(3)" class="btn-primary">
-          Següent
-        </button>
-      </div>
-    </section>
-
-    <!-- PAS 4: PREGUNTA 4 -->
-    <section id="step-4" class="step-card hidden" aria-labelledby="heading-step-4">
-      <h2 id="heading-step-4" tabindex="-1" class="text-xl font-bold mb-2 text-slate-900 dark:text-white focus:outline-none">Pregunta 4: Fonts d'informació</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Seleccioneu totes les opcions que s'apliquin:</p>
-
-      <div class="space-y-3" role="group" aria-label="Opcions per a la pregunta 4">
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p4" value="A" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">A) Documents facilitats directament o disponibles a Internet</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p4" value="B" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">B) Unitats de xarxa, carpetes de SharePoint o TEAMS</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p4" value="C" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">C) Bústies de correu electrònic o missatgeria de TEAMS</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p4" value="D" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">D) Bases de dades o aplicacions informàtiques de negoci</span>
-        </label>
-      </div>
-
-      <div id="error-4" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        Seleccioneu almenys una opció per continuar.
-      </div>
-
-      <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
-        <button type="button" onclick="prevStep()" class="btn-secondary">
-          Enrere
-        </button>
-        <button type="button" onclick="nextQuestion(4)" class="btn-primary">
-          Següent
-        </button>
-      </div>
-    </section>
-
-    <!-- PAS 5: PREGUNTA 5 -->
-    <section id="step-5" class="step-card hidden" aria-labelledby="heading-step-5">
-      <h2 id="heading-step-5" tabindex="-1" class="text-xl font-bold mb-2 text-slate-900 dark:text-white focus:outline-none">Pregunta 5: Nombre d'usuaris</h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">Seleccioneu totes les opcions que s'apliquin:</p>
-
-      <div class="space-y-3" role="group" aria-label="Opcions per a la pregunta 5">
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="A" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">A) Només un usuari individual</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="B" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">B) Entre dos i deu usuaris</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="C" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">C) Més de deu usuaris</span>
-        </label>
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="D" class="mt-1 h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500" />
-          <span class="text-sm">D) Sense un límit definit d'usuaris (obert a qualsevol persona del departament o ens)</span>
-        </label>
-      </div>
-
-      <div id="error-5" role="alert" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-lg">
-        Seleccioneu almenys una opció per continuar.
-      </div>
-
-      <div class="mt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-3">
-        <button type="button" onclick="prevStep()" class="btn-secondary">
-          Enrere
-        </button>
-        <button type="button" onclick="calculateResult()" class="btn-primary">
-          Calcular nivell
-        </button>
-      </div>
-    </section>
-
-    <!-- PAS RESULTAT: INFORME -->
-    <section id="step-result" class="step-card hidden" aria-labelledby="heading-step-result">
-      <!-- Contingut dinàmic generat per script.js -->
-      <div id="report-container"></div>
-
-      <!-- Botons d'acció adaptatius -->
-      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 no-print">
-        <button type="button" onclick="sendEmailReport()" class="btn-primary">
+        <button onclick="sendEmailReport()" class="btn-secondary">
           Enviar per correu
         </button>
-        <button type="button" id="btn-copy-report" onclick="copyReportToClipboard()" class="btn-secondary">
-          Copiar text
-        </button>
-        <button type="button" onclick="downloadMarkdown()" class="btn-secondary">
-          Descarregar informe (.md)
-        </button>
-        <button type="button" onclick="printReport()" class="btn-secondary">
-          Imprimir / Desar en PDF
-        </button>
-        <button type="button" onclick="confirmResetEvaluation()" class="w-full sm:w-auto px-4 py-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-medium transition-colors sm:ml-auto text-center focus:outline-none focus:underline">
-          Reiniciar avaluació
+        <button onclick="downloadMarkdown()" class="btn-secondary">
+          Baixar .MD
         </button>
       </div>
-    </section>
 
+    </div>
   </main>
 
-  <!-- Peu de pàgina -->
-  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto no-print" role="contentinfo">
-    <p>© Generalitat de Catalunya — Governança d'Intel·ligència Artificial</p>
-  </footer>
-
-  <!-- Carregador del fitxer de lògica -->
   <script src="script.js"></script>
 </body>
 </html>

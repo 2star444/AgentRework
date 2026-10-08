@@ -119,10 +119,15 @@ function restoreStateFromLocalStorage() {
     Object.assign(state, parsed);
 
     // Restaurar valors als camps de context
-    document.getElementById('departament').value = state.departament || '';
-    document.getElementById('email-contacte').value = state.emailContacte || '';
-    document.getElementById('proces').value = state.proces || '';
-    document.getElementById('primer-agent').checked = state.esPrimerAgent || false;
+    const deptEl = document.getElementById('departament');
+    const emailEl = document.getElementById('email-contacte');
+    const procEl = document.getElementById('proces');
+    const primerAgentEl = document.getElementById('primer-agent');
+
+    if (deptEl) deptEl.value = state.departament || '';
+    if (emailEl) emailEl.value = state.emailContacte || '';
+    if (procEl) procEl.value = state.proces || '';
+    if (primerAgentEl) primerAgentEl.checked = state.esPrimerAgent || false;
 
     // Restaurar caselles de selecció de les preguntes
     for (let i = 1; i <= 5; i++) {
@@ -159,17 +164,16 @@ function submitContext() {
   const isEmailValid = emailInput.includes('@') && emailInput.includes('.');
   const isValid = deptInput && procInput && emailInput && isEmailValid;
 
-  // Accessibilitat: actualitzar aria-invalid
   deptElem.setAttribute('aria-invalid', !deptInput);
   emailElem.setAttribute('aria-invalid', !emailInput || !isEmailValid);
   procElem.setAttribute('aria-invalid', !procInput);
 
   if (!isValid) {
-    err.classList.remove('hidden');
+    if (err) err.classList.remove('hidden');
     return;
   }
 
-  err.classList.add('hidden');
+  if (err) err.classList.add('hidden');
   state.departament = deptInput;
   state.emailContacte = emailInput;
   state.proces = procInput;
@@ -185,11 +189,11 @@ function nextQuestion(qNum) {
   const err = document.getElementById(`error-${qNum}`);
 
   if (selected.length === 0) {
-    err.classList.remove('hidden');
+    if (err) err.classList.remove('hidden');
     return;
   }
 
-  err.classList.add('hidden');
+  if (err) err.classList.add('hidden');
   state.answers[`p${qNum}`] = selected;
 
   saveStateToLocalStorage();
@@ -205,7 +209,7 @@ function prevStep() {
   }
 }
 
-// Canvi de pantalla, actualització de progrés i gestió del focus (Accessibilitat)
+// Canvi de pantalla, actualització de progrés i gestió del focus
 function goToStep(stepNum, shouldFocus = true) {
   state.currentStep = stepNum;
   document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
@@ -239,8 +243,7 @@ function goToStep(stepNum, shouldFocus = true) {
   const activeCard = document.getElementById(activeCardId);
   if (activeCard) {
     activeCard.classList.remove('hidden');
-    
-    // WCAG Accessibilitat: Enfocar el títol del pas per als lectors de pantalla
+
     if (shouldFocus) {
       const heading = activeCard.querySelector('h2');
       if (heading) {
@@ -259,10 +262,10 @@ function calculateResult() {
   const err5 = document.getElementById('error-5');
 
   if (selectedP5.length === 0) {
-    err5.classList.remove('hidden');
+    if (err5) err5.classList.remove('hidden');
     return;
   }
-  err5.classList.add('hidden');
+  if (err5) err5.classList.add('hidden');
   state.answers.p5 = selectedP5;
 
   const questionLevels = {};
@@ -270,7 +273,7 @@ function calculateResult() {
 
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
-    const selectedOptions = state.answers[qKey];
+    const selectedOptions = state.answers[qKey] || [];
     let qMax = 1;
 
     selectedOptions.forEach(opt => {
@@ -293,14 +296,16 @@ function calculateResult() {
 
 function renderReport() {
   const container = document.getElementById('report-container');
+  if (!container) return;
+
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
   let analysisHTML = '';
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
-    const selected = state.answers[qKey];
-    const qLevel = questionLevels[qKey];
+    const selected = state.answers[qKey] || [];
+    const qLevel = questionLevels[qKey] || 1;
     const optsText = selected.map(o => `${o}) ${optionLabels[qKey][o]}`).join('; ');
 
     analysisHTML += `
@@ -331,53 +336,67 @@ function renderReport() {
   container.innerHTML = `
     ${firstAgentNoticeHTML}
 
-    <!-- Títol principal -->
-    <h2 id="heading-step-result" tabindex="-1" class="report-title mb-4 focus:outline-none">Informe de valoració del nivell d'un cas d'ús de IA</h2>
+    <!-- Capçalera Corporativa -->
+    <div class="border-b-2 border-red-700 pb-3 mb-4 print:pb-2 print:mb-3">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Generalitat de Catalunya</span>
+        <span class="text-xs text-slate-500">Governança de la IA</span>
+      </div>
+      <h2 id="heading-step-result" tabindex="-1" class="text-2xl font-bold text-slate-900 dark:text-white print:text-xl focus:outline-none">
+        Informe de Valoració del Cas d'Ús d'IA
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5 print:text-xs">
+        Avaluació del nivell de risc, autonomia i recomanacions d'implantació.
+      </p>
+    </div>
 
     <!-- Resum del cas -->
-    <div class="report-body-text mb-6 space-y-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-      <p><strong>Departament / Ens:</strong> ${escapeHtml(state.departament)}</p>
-      <p><strong>Correu de contacte:</strong> ${escapeHtml(state.emailContacte)}</p>
-      <p><strong>Procés i Finalitat:</strong> ${escapeHtml(state.proces)}</p>
-      <p><strong>Primer agent desenvolupat:</strong> ${state.esPrimerAgent ? "Sí (Sol·licita suport a l'Escola d'Agents)" : 'No'}</p>
+    <div class="report-body-text mb-5 space-y-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 print:p-2.5 print:mb-2.5">
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 print:mb-1">Dades de la sol·licitud</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm print:text-xs">
+        <p><strong>Departament / Ens:</strong> ${escapeHtml(state.departament)}</p>
+        <p><strong>Correu de contacte:</strong> ${escapeHtml(state.emailContacte)}</p>
+        <p><strong>Procés i Finalitat:</strong> ${escapeHtml(state.proces)}</p>
+        <p><strong>Primer agent desenvolupat:</strong> ${state.esPrimerAgent ? "Sí (Sol·licita suport a l'Escola d'Agents)" : 'No'}</p>
+      </div>
     </div>
 
     <!-- Anàlisi de respostes -->
-    <div class="report-body-text mb-6">
-      <h3 class="font-bold text-slate-900 dark:text-white mb-2">Anàlisi de respostes:</h3>
+    <div class="report-body-text mb-5 print:mb-2.5">
+      <h3 class="font-bold text-slate-900 dark:text-white mb-2 print:text-sm print:mb-1">Anàlisi de respostes:</h3>
       ${analysisHTML}
     </div>
 
     <!-- Resultat de la valoració -->
-    <div class="report-result-level my-6 p-4 rounded-xl border ${getLevelColorStyle(finalLevel)}">
+    <div class="report-result-level my-5 p-4 rounded-xl border font-bold ${getLevelColorStyle(finalLevel)} print:p-2 print:my-2 print:text-xs">
       Resultat de la valoració: NIVELL FINAL ${finalLevel}
     </div>
 
     <!-- Text normatiu del nivell -->
-    <div class="report-body-text mb-6 p-4 bg-slate-100 dark:bg-slate-700/40 rounded-lg">
-      <p class="italic text-slate-800 dark:text-slate-200">"${normativeTexts[finalLevel]}"</p>
+    <div class="report-body-text mb-5 p-4 bg-slate-100 dark:bg-slate-700/40 rounded-lg print:p-2 print:mb-2">
+      <p class="italic text-slate-800 dark:text-slate-200 print:text-xs">"${normativeTexts[finalLevel]}"</p>
     </div>
 
     <!-- Dades de contacte -->
-    <div class="report-body-text mb-6">
+    <div class="report-body-text mb-5 print:mb-2">
       <p><strong>Dades de contacte:</strong> Busqueu el <strong>referent d'automatització i IA</strong> de <strong>${escapeHtml(state.departament)}</strong> directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.</p>
     </div>
 
     <!-- Frase literal de tancament -->
-    <div class="report-body-text pt-4 border-t border-slate-200 dark:border-slate-700 font-medium text-slate-700 dark:text-slate-300">
+    <div class="report-body-text pt-3 border-t border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs print:pt-1">
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
     <!-- Aclariment de les opcions d'acció -->
     <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3 no-print">
       <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gencat shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         Indicacions per a la tramitació de l'informe:
       </p>
       <ul class="space-y-2 list-disc pl-5">
-        <li><strong>Enviar per correu:</strong> Obre el gestor de correu electrònic amb l'informe dirigit a <code>${EMAIL_GOVERNANCA}</code>. Aquest pas és necessari per registrar oficialment el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
+        <li><strong>Enviar per correu:</strong> Obre el gestor de correu electrònic amb l'informe dirigit a <code>${EMAIL_GOVERNANCA}</code> i descarrega la còpia .md. Aquest pas és necessari per registrar oficialment el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
         <li><strong>Copiar text:</strong> Copia el contingut íntegre de l'informe al portapapers per enganxar-lo en aplicacions com Outlook Web o Microsoft Teams.</li>
         <li><strong>Descarregar informe (.md):</strong> Desa una còpia del document en format Markdown al vostre equip.</li>
         <li><strong>Imprimir / Desar en PDF:</strong> Genera un document en format PDF maquetat per a expedients o arxius interns.</li>
@@ -402,8 +421,8 @@ function generateMarkdownReport() {
 
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
-    const selected = state.answers[qKey];
-    const qLevel = questionLevels[qKey];
+    const selected = state.answers[qKey] || [];
+    const qLevel = questionLevels[qKey] || 1;
     const optsText = selected.map(o => `${o}) ${optionLabels[qKey][o]}`).join('; ');
 
     md += `- **${questionTitles[qKey]}**\n`;
@@ -452,22 +471,28 @@ function downloadMarkdown() {
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
-  const safeDept = state.departament.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  const safeDept = (state.departament || 'generalitat').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
 
   link.href = url;
   link.setAttribute('download', `informe_avaluacio_ia_${safeDept}.md`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
-// Enviar per correu mitjançant protocol mailto
+// Enviar per correu mitjançant protocol mailto i descarregar informe .md
 function sendEmailReport() {
-  const subject = encodeURIComponent(`[Avaluació IA] Informe de cas d'ús - ${state.departament}`);
-  const bodyText = generateMarkdownReport();
+  downloadMarkdown();
+
+  const dept = state.departament || "Generalitat";
+  const subject = encodeURIComponent(`[Avaluació IA] Informe de cas d'ús - ${dept}`);
+  const bodyText = `Hola,\n\nAdjunt a aquest correu trobareu l'informe de valoració del cas d'ús d'IA en format Markdown (.md) per al departament/ens: ${dept}.\n\nNOTA: El fitxer ".md" s'ha descarregat automaticament a la vostra carpeta de Baixades (Downloads). Si us plau, adjunteu-lo a aquest correu abans d'enviar-lo.\n\nAtentament,\n${state.emailContacte || ''}`;
   const body = encodeURIComponent(bodyText);
 
-  window.location.href = `mailto:${EMAIL_GOVERNANCA}?subject=${subject}&body=${body}`;
+  setTimeout(() => {
+    window.location.href = `mailto:${EMAIL_GOVERNANCA}?subject=${subject}&body=${body}`;
+  }, 500);
 }
 
 function getLevelColorStyle(level) {
@@ -481,6 +506,7 @@ function getLevelColorStyle(level) {
 }
 
 function escapeHtml(str) {
+  if (!str) return '';
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -504,10 +530,16 @@ function resetEvaluation() {
   state.esPrimerAgent = false;
   state.answers = { p1: [], p2: [], p3: [], p4: [], p5: [] };
 
-  document.getElementById('departament').value = '';
-  document.getElementById('email-contacte').value = '';
-  document.getElementById('proces').value = '';
-  document.getElementById('primer-agent').checked = false;
+  const deptEl = document.getElementById('departament');
+  const emailEl = document.getElementById('email-contacte');
+  const procEl = document.getElementById('proces');
+  const primerAgentEl = document.getElementById('primer-agent');
+
+  if (deptEl) deptEl.value = '';
+  if (emailEl) emailEl.value = '';
+  if (procEl) procEl.value = '';
+  if (primerAgentEl) primerAgentEl.checked = false;
+
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
   try {
@@ -520,7 +552,7 @@ function resetEvaluation() {
 }
 
 // Navegació ràpida amb la tecla ENTER
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON')) return;
 
