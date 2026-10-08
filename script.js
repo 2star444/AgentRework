@@ -109,44 +109,51 @@ function saveStateToLocalStorage() {
   }
 }
 
-// Restauració de l'estat des de localStorage
+// Restauració de l'estat des de localStorage i inicialització de la vista
 function restoreStateFromLocalStorage() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!saved) return;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      Object.assign(state, parsed);
 
-    const parsed = JSON.parse(saved);
-    Object.assign(state, parsed);
+      // Assegurar que currentStep és de tipus correcte
+      if (typeof state.currentStep === 'string' && !isNaN(state.currentStep)) {
+        state.currentStep = parseInt(state.currentStep, 10);
+      }
 
-    // Restaurar valors als camps de context
-    const deptEl = document.getElementById('departament');
-    const emailEl = document.getElementById('email-contacte');
-    const procEl = document.getElementById('proces');
-    const primerAgentEl = document.getElementById('primer-agent');
+      // Restaurar valors als camps de context
+      const deptEl = document.getElementById('departament');
+      const emailEl = document.getElementById('email-contacte');
+      const procEl = document.getElementById('proces');
+      const primerAgentEl = document.getElementById('primer-agent');
 
-    if (deptEl) deptEl.value = state.departament || '';
-    if (emailEl) emailEl.value = state.emailContacte || '';
-    if (procEl) procEl.value = state.proces || '';
-    if (primerAgentEl) primerAgentEl.checked = state.esPrimerAgent || false;
+      if (deptEl) deptEl.value = state.departament || '';
+      if (emailEl) emailEl.value = state.emailContacte || '';
+      if (procEl) procEl.value = state.proces || '';
+      if (primerAgentEl) primerAgentEl.checked = state.esPrimerAgent || false;
 
-    // Restaurar caselles de selecció de les preguntes
-    for (let i = 1; i <= 5; i++) {
-      const qKey = `p${i}`;
-      const savedAnswers = state.answers[qKey] || [];
-      document.querySelectorAll(`input[name="${qKey}"]`).forEach(cb => {
-        cb.checked = savedAnswers.includes(cb.value);
-      });
-    }
-
-    // Navegar on s'havia quedat l'usuari
-    if (state.currentStep === 'result') {
-      renderReport();
-      goToStep('result', false);
-    } else if (typeof state.currentStep === 'number' && state.currentStep >= 0 && state.currentStep <= 5) {
-      goToStep(state.currentStep, false);
+      // Restaurar caselles de selecció de les preguntes
+      for (let i = 1; i <= 5; i++) {
+        const qKey = `p${i}`;
+        const savedAnswers = state.answers[qKey] || [];
+        document.querySelectorAll(`input[name="${qKey}"]`).forEach(cb => {
+          cb.checked = savedAnswers.includes(cb.value);
+        });
+      }
     }
   } catch (e) {
     console.error("Error restaurant les dades des de localStorage:", e);
+  }
+
+  // NAVEGACIÓ FORÇADA: Si no hi ha pas vàlid, carregar el Pas 0 inicial
+  if (state.currentStep === 'result') {
+    renderReport();
+    goToStep('result', false);
+  } else if (typeof state.currentStep === 'number' && state.currentStep >= 0 && state.currentStep <= 5) {
+    goToStep(state.currentStep, false);
+  } else {
+    goToStep(0, false);
   }
 }
 
@@ -155,10 +162,13 @@ function submitContext() {
   const deptElem = document.getElementById('departament');
   const emailElem = document.getElementById('email-contacte');
   const procElem = document.getElementById('proces');
+
+  if (!deptElem || !emailElem || !procElem) return;
+
   const deptInput = deptElem.value.trim();
   const emailInput = emailElem.value.trim();
   const procInput = procElem.value.trim();
-  const isFirstAgent = document.getElementById('primer-agent').checked;
+  const isFirstAgent = document.getElementById('primer-agent')?.checked || false;
   const err = document.getElementById('error-0');
 
   const isEmailValid = emailInput.includes('@') && emailInput.includes('.');
@@ -212,6 +222,8 @@ function prevStep() {
 // Canvi de pantalla, actualització de progrés i gestió del focus
 function goToStep(stepNum, shouldFocus = true) {
   state.currentStep = stepNum;
+
+  // Ocultar totes les targetes
   document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
 
   const topBar = document.getElementById('top-progress-bar');
