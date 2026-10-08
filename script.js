@@ -20,7 +20,7 @@ const state = {
 };
 
 // Adreça de correu de destinació de Governança
-const EMAIL_GOVERNANCA = "judith.mimoso@gencat.cat";
+const EMAIL_GOVERNANCA = "judithmimoso@gencat.cat";
 
 // Mapa d'opcions a nivells
 const optionLevels = {
