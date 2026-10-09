@@ -19,7 +19,7 @@
       @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
     }
 
-    /* Estils per a impressió i PDF */
+    /* Estils per a impressio i generacio de PDF (1 pagina A4) */
     @media print {
       @page {
         size: A4 portrait;
@@ -51,6 +51,36 @@
         margin: 0 !important;
       }
 
+      h1 {
+        font-size: 1.3rem !important;
+        line-height: 1.2 !important;
+      }
+      h2 {
+        font-size: 1rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+      h3 {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.2rem !important;
+      }
+
+      .mb-6, .mb-5, .my-6 {
+        margin-bottom: 0.35rem !important;
+        margin-top: 0.25rem !important;
+      }
+
+      .p-4 {
+        padding: 0.35rem 0.5rem !important;
+      }
+
+      .p-6 {
+        padding: 0 !important;
+      }
+
+      .space-y-4 > * + * {
+        margin-top: 0.35rem !important;
+      }
+
       #report-container {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -60,7 +90,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
-  <!-- Header / Barra de progrés superior -->
+  <!-- Header / Barra de progres superior -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-10 no-print">
     <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
       <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Generalitat de Catalunya</span>
@@ -281,33 +311,33 @@
       </div>
     </div>
 
-    <!-- PAS 5: Pregunta 5 -->
+    <!-- PAS 5: Pregunta 5 (Opcio Unica via Radio) -->
     <div id="step-5" class="step-card hidden">
       <h2 tabindex="-1" class="text-xl font-bold text-slate-900 dark:text-white mb-2 focus:outline-none">
         Pregunta 5: Nombre d'usuaris
       </h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Quants usuaris utilitzaran aquest agent?</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Selecciona l'opció que s'apliquin al teu cas:</p>
 
       <div class="space-y-3">
         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="A" class="mt-1 h-4 w-4 text-red-700 rounded border-slate-300 focus:ring-red-700">
+          <input type="radio" name="p5" value="A" class="mt-1 h-4 w-4 text-red-700 border-slate-300 focus:ring-red-700">
           <span class="text-sm text-slate-800 dark:text-slate-200">A) Només un usuari individual</span>
         </label>
         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="B" class="mt-1 h-4 w-4 text-red-700 rounded border-slate-300 focus:ring-red-700">
+          <input type="radio" name="p5" value="B" class="mt-1 h-4 w-4 text-red-700 border-slate-300 focus:ring-red-700">
           <span class="text-sm text-slate-800 dark:text-slate-200">B) Entre dos i deu usuaris</span>
         </label>
         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="C" class="mt-1 h-4 w-4 text-red-700 rounded border-slate-300 focus:ring-red-700">
+          <input type="radio" name="p5" value="C" class="mt-1 h-4 w-4 text-red-700 border-slate-300 focus:ring-red-700">
           <span class="text-sm text-slate-800 dark:text-slate-200">C) Més de deu usuaris</span>
         </label>
         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
-          <input type="checkbox" name="p5" value="D" class="mt-1 h-4 w-4 text-red-700 rounded border-slate-300 focus:ring-red-700">
+          <input type="radio" name="p5" value="D" class="mt-1 h-4 w-4 text-red-700 border-slate-300 focus:ring-red-700">
           <span class="text-sm text-slate-800 dark:text-slate-200">D) Sense un límit definit d'usuaris (obert a qualsevol persona del departament o ens)</span>
         </label>
       </div>
 
-      <p id="error-5" class="text-sm text-red-600 hidden font-medium mt-3">Selecciona almenys una opció per continuar.</p>
+      <p id="error-5" class="text-sm text-red-600 hidden font-medium mt-3">Selecciona una opció per continuar.</p>
 
       <div class="pt-6 flex justify-between gap-3">
         <button onclick="prevStep()" class="btn-secondary">&larr; Enrere</button>
@@ -317,10 +347,9 @@
 
     <!-- PANTALLA DE RESULTAT I INFORME -->
     <div id="step-result" class="step-card hidden">
-      <!-- El JavaScript omplirà el contingut dinàmic de l'informe aquí -->
       <div id="report-container"></div>
 
-      <!-- Botons d'acció per a l'informe -->
+      <!-- Botons d'accio per a l'informe -->
       <div class="mt-6 flex flex-wrap gap-3 justify-end no-print">
         <button onclick="prevStep()" class="btn-secondary">&larr; Modificar respostes</button>
         <button id="btn-copy-report" onclick="copyReportToClipboard()" class="btn-secondary">Copiar text</button>

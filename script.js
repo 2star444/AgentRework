@@ -1,7 +1,7 @@
-// Clau per al desat a la memòria local
+// Clau per al desat a la memoria local
 const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
 
-// Memòria de l'estat de l'avaluació
+// Memoria de l'estat de l'avaluacio
 const state = {
   departament: '',
   emailContacte: '',
@@ -19,7 +19,7 @@ const state = {
   computedQuestionLevels: {}
 };
 
-// Adreça de correu de destinació de Governança
+// Adreca de correu de destinacio de Governanca
 const EMAIL_GOVERNANCA = "judithmimoso@gencat.cat";
 
 // Mapa d'opcions a nivells
@@ -84,7 +84,7 @@ const normativeTexts = {
   3: "L'agent que vols construir és de nivell 3, ús corporatiu. No el pots desenvolupar tu. Posa't en contacte amb l'àmbit competent en temes d'organització i amb l'Àrea TIC del teu departament o ens per tal d'explicar-los les teves necessitats i que ells valorin quina és la solució òptima a desenvolupar."
 };
 
-// Mapa de percentatges per a la barra de progrés
+// Mapa de percentatges per a la barra de progres
 const progressPercentages = {
   0: '15%',
   1: '30%',
@@ -95,7 +95,7 @@ const progressPercentages = {
   'result': '100%'
 };
 
-// Carregador inicial i restauració des de localStorage
+// Carregador inicial i restauracio des de localStorage
 document.addEventListener('DOMContentLoaded', () => {
   restoreStateFromLocalStorage();
 });
@@ -109,7 +109,7 @@ function saveStateToLocalStorage() {
   }
 }
 
-// Restauració de l'estat des de localStorage i inicialització de la vista
+// Restauracio de l'estat des de localStorage i inicialitzacio de la vista
 function restoreStateFromLocalStorage() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -117,12 +117,10 @@ function restoreStateFromLocalStorage() {
       const parsed = JSON.parse(saved);
       Object.assign(state, parsed);
 
-      // Assegurar que currentStep és de tipus correcte
       if (typeof state.currentStep === 'string' && !isNaN(state.currentStep)) {
         state.currentStep = parseInt(state.currentStep, 10);
       }
 
-      // Restaurar valors als camps de context
       const deptEl = document.getElementById('departament');
       const emailEl = document.getElementById('email-contacte');
       const procEl = document.getElementById('proces');
@@ -133,12 +131,11 @@ function restoreStateFromLocalStorage() {
       if (procEl) procEl.value = state.proces || '';
       if (primerAgentEl) primerAgentEl.checked = state.esPrimerAgent || false;
 
-      // Restaurar caselles de selecció de les preguntes
       for (let i = 1; i <= 5; i++) {
         const qKey = `p${i}`;
         const savedAnswers = state.answers[qKey] || [];
-        document.querySelectorAll(`input[name="${qKey}"]`).forEach(cb => {
-          cb.checked = savedAnswers.includes(cb.value);
+        document.querySelectorAll(`input[name="${qKey}"]`).forEach(input => {
+          input.checked = savedAnswers.includes(input.value);
         });
       }
     }
@@ -146,7 +143,6 @@ function restoreStateFromLocalStorage() {
     console.error("Error restaurant les dades des de localStorage:", e);
   }
 
-  // NAVEGACIÓ FORÇADA: Si no hi ha pas vàlid, carregar el Pas 0 inicial
   if (state.currentStep === 'result') {
     renderReport();
     goToStep('result', false);
@@ -193,7 +189,7 @@ function submitContext() {
   goToStep(1);
 }
 
-// Fase 2: Navegació endavant
+// Fase 2: Navegacio endavant
 function nextQuestion(qNum) {
   const selected = Array.from(document.querySelectorAll(`input[name="p${qNum}"]:checked`)).map(c => c.value);
   const err = document.getElementById(`error-${qNum}`);
@@ -210,7 +206,7 @@ function nextQuestion(qNum) {
   goToStep(qNum + 1);
 }
 
-// Botó "Enrere" per rectificar respostes
+// Boto "Enrere" per rectificar respostes
 function prevStep() {
   if (typeof state.currentStep === 'number' && state.currentStep > 0) {
     goToStep(state.currentStep - 1);
@@ -219,11 +215,10 @@ function prevStep() {
   }
 }
 
-// Canvi de pantalla, actualització de progrés i gestió del focus
+// Canvi de pantalla, actualitzacio de progres i gestio del focus
 function goToStep(stepNum, shouldFocus = true) {
   state.currentStep = stepNum;
 
-  // Ocultar totes les targetes
   document.querySelectorAll('.step-card').forEach(card => card.classList.add('hidden'));
 
   const topBar = document.getElementById('top-progress-bar');
@@ -268,7 +263,7 @@ function goToStep(stepNum, shouldFocus = true) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Fase 3 & 4: Càlcul del Nivell Final i generació de l'Informe
+// Fase 3 & 4: Calcul del Nivell Final i generacio de l'Informe
 function calculateResult() {
   const selectedP5 = Array.from(document.querySelectorAll('input[name="p5"]:checked')).map(c => c.value);
   const err5 = document.getElementById('error-5');
@@ -348,7 +343,7 @@ function renderReport() {
   container.innerHTML = `
     ${firstAgentNoticeHTML}
 
-    <!-- Capçalera Corporativa -->
+    <!-- Capcalera Corporativa -->
     <div class="border-b-2 border-red-700 pb-3 mb-4 print:pb-2 print:mb-3">
       <div class="flex justify-between items-center mb-1">
         <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Generalitat de Catalunya</span>
@@ -373,13 +368,13 @@ function renderReport() {
       </div>
     </div>
 
-    <!-- Anàlisi de respostes -->
+    <!-- Analisi de respostes -->
     <div class="report-body-text mb-5 print:mb-2.5">
       <h3 class="font-bold text-slate-900 dark:text-white mb-2 print:text-sm print:mb-1">Anàlisi de respostes:</h3>
       ${analysisHTML}
     </div>
 
-    <!-- Resultat de la valoració -->
+    <!-- Resultat de la valoracio -->
     <div class="report-result-level my-5 p-4 rounded-xl border font-bold ${getLevelColorStyle(finalLevel)} print:p-2 print:my-2 print:text-xs">
       Resultat de la valoració: NIVELL FINAL ${finalLevel}
     </div>
@@ -399,13 +394,13 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Aclariment de les opcions d'acció -->
+    <!-- Aclariment de les opcions d'accio -->
     <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3 no-print">
       <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        Indicacions per a la tramitació de l'informe:
+        Indications per a la tramitació de l'informe:
       </p>
       <ul class="space-y-2 list-disc pl-5">
         <li><strong>Enviar per correu:</strong> Obre el gestor de correu electrònic amb l'informe dirigit a <code>${EMAIL_GOVERNANCA}</code> i descarrega la còpia .md. Aquest pas és necessari per registrar oficialment el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
@@ -417,7 +412,7 @@ function renderReport() {
   `;
 }
 
-// Generació del text en format Markdown (.md)
+// Generacio del text en format Markdown (.md)
 function generateMarkdownReport() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
@@ -451,7 +446,7 @@ function generateMarkdownReport() {
   return md;
 }
 
-// Botó "Copiar text de l'informe" al portapapers
+// Boto "Copiar text de l'informe" al portapapers
 function copyReportToClipboard() {
   const mdText = generateMarkdownReport();
   navigator.clipboard.writeText(mdText).then(() => {
@@ -493,7 +488,7 @@ function downloadMarkdown() {
   URL.revokeObjectURL(url);
 }
 
-// Enviar per correu mitjançant protocol mailto i descarregar informe .md
+// Enviar per correu mitjancant protocol mailto i descarregar informe .md
 function sendEmailReport() {
   downloadMarkdown();
 
@@ -527,7 +522,7 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-// Confirmació de seguretat per reiniciar l'avaluació
+// Confirmacio de seguretat per reiniciar l'avaluacio
 function confirmResetEvaluation() {
   const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");
   if (confirmed) {
@@ -552,7 +547,7 @@ function resetEvaluation() {
   if (procEl) procEl.value = '';
   if (primerAgentEl) primerAgentEl.checked = false;
 
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
 
   try {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -563,7 +558,7 @@ function resetEvaluation() {
   goToStep(0);
 }
 
-// Navegació ràpida amb la tecla ENTER
+// Navegacio rapida amb la tecla ENTER
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON')) return;
