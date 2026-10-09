@@ -522,7 +522,8 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-// Confirmacio per reiniciar l'avaluacio
+// Confirmacio per reiniciar l'avaluacio adlkfkajdf
+
 function confirmResetEvaluation() {
   const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");
   if (confirmed) {
