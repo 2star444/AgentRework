@@ -20,7 +20,7 @@ const state = {
 };
 
 // Adreca de correu de destinacio de Governanca
-const EMAIL_GOVERNANCA = "judithmimoso@gencat.cat";
+const EMAIL_GOVERNANCA = "alejandro.jurodovic@gencat.cat";
 
 // Mapa d'opcions a nivells
 const optionLevels = {
@@ -522,7 +522,7 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-// Confirmacio de seguretat per reiniciar l'avaluacio
+// Confirmacio per reiniciar l'avaluacio
 function confirmResetEvaluation() {
   const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");
   if (confirmed) {
@@ -558,7 +558,7 @@ function resetEvaluation() {
   goToStep(0);
 }
 
-// Navegacio rapida amb la tecla ENTER
+// Navegacio amb tecla ENTER
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON')) return;
