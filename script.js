@@ -326,7 +326,7 @@ function renderReport() {
     `;
   }
 
-  // Bloc d'acompanyament de l'Escola d'Agents (ubica despres del resultat)
+  // Bloc d'acompanyament de l'Escola d'Agents
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
@@ -340,7 +340,7 @@ function renderReport() {
     `;
   }
 
-  // Dades de contacte segons si s'ha sol·licitat escola d'agents o no
+  // Dades de contacte adaptades
   let contactHTML = '';
   if (state.esPrimerAgent) {
     contactHTML = `
@@ -411,8 +411,11 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Opció de tramitació (2 sortides principals) -->
-    <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-end no-print">
+    <!-- Botons d'accio (Modificar respostes, Generar PDF, Enviar per correu) -->
+    <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-3 justify-end no-print">
+      <button onclick="prevStep()" class="btn-secondary">
+        Modificar respostes
+      </button>
       <button onclick="printReport()" class="btn-secondary">
         Generar informe en PDF
       </button>
