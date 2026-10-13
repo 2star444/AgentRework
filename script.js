@@ -19,8 +19,9 @@ const state = {
   computedQuestionLevels: {}
 };
 
-// Adreca de correu de destinacio de Governanca
-const EMAIL_GOVERNANCA = "alejandro.jurodovic@gencat.cat";
+// Adreces de correu oficials
+const EMAIL_GOVERNANCA = "ia.cat@gencat.cat";
+const EMAIL_ALEJANDRO = "alejandro.jurodovic@gencat.cat";
 
 // Mapa d'opcions a nivells
 const optionLevels = {
@@ -109,7 +110,7 @@ function saveStateToLocalStorage() {
   }
 }
 
-// Restauracio de l'estat des de localStorage i inicialitzacio de la vista
+// Restauracio de l'estat des de localStorage
 function restoreStateFromLocalStorage() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -206,7 +207,7 @@ function nextQuestion(qNum) {
   goToStep(qNum + 1);
 }
 
-// Boto "Enrere" per rectificar respostes
+// Boto "Enrere"
 function prevStep() {
   if (typeof state.currentStep === 'number' && state.currentStep > 0) {
     goToStep(state.currentStep - 1);
@@ -215,7 +216,7 @@ function prevStep() {
   }
 }
 
-// Canvi de pantalla, actualitzacio de progres i gestio del focus
+// Canvi de pantalla, actualitzacio de progres i focus
 function goToStep(stepNum, shouldFocus = true) {
   state.currentStep = stepNum;
 
@@ -308,6 +309,7 @@ function renderReport() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
+  // Analisi detallada de respostes
   let analysisHTML = '';
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
@@ -324,25 +326,33 @@ function renderReport() {
     `;
   }
 
+  // Bloc d'acompanyament de l'Escola d'Agents (ubica despres del resultat)
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
-      <div class="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 flex items-start gap-3 no-print">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+      <div class="mb-5 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 flex items-start gap-3 no-print">
         <div class="text-sm space-y-1">
           <strong class="font-semibold text-base block">Sol·licitud d'acompanyament de l'Escola d'Agents</strong>
-          <p>Heu indicat que és el vostre primer agent. Perquè l'Escola d'Agents us pugui acompanyar, <strong>recordeu prémer el botó "Enviar per correu"</strong> al final d'aquesta pàgina.</p>
-          <p class="text-xs text-blue-700 dark:text-blue-300"><em>(L'opció de descarregar o copiar el text no envia cap notificació automàtica a l'equip de Governança).</em></p>
+          <p>Heu indicat que és el vostre primer agent. L'Escola d'Agents us acompanyarà en el procés de desenvolupament.</p>
+          <p class="text-xs text-blue-700 dark:text-blue-300"><em>Utilitzeu el botó "Enviar informació per correu" al final d'aquesta pàgina per tramitar la sol·licitud.</em></p>
         </div>
       </div>
     `;
   }
 
-  container.innerHTML = `
-    ${firstAgentNoticeHTML}
+  // Dades de contacte segons si s'ha sol·licitat escola d'agents o no
+  let contactHTML = '';
+  if (state.esPrimerAgent) {
+    contactHTML = `
+      <p><strong>Dades de contacte:</strong> Per a qualsevol dubte o per a la gestió de la sol·licitud d'acompanyament de l'Escola d'Agents, podeu adreçar-vos a la bústia <strong><a href="mailto:${EMAIL_GOVERNANCA}" class="text-red-700 underline">${EMAIL_GOVERNANCA}</a></strong> o directament a Alejandro Juridovic (<strong><a href="mailto:${EMAIL_ALEJANDRO}" class="text-red-700 underline">${EMAIL_ALEJANDRO}</a></strong>).</p>
+    `;
+  } else {
+    contactHTML = `
+      <p><strong>Dades de contacte:</strong> Per validar el vostre cas d'ús, si us plau consulteu el registre de referents d'automatització i IA de <strong>${escapeHtml(state.departament)}</strong> directament a SharePoint per trobar el correu electrònic del vostre referent assignat.</p>
+    `;
+  }
 
+  container.innerHTML = `
     <!-- Capcalera Corporativa -->
     <div class="border-b-2 border-red-700 pb-3 mb-4 print:pb-2 print:mb-3">
       <div class="flex justify-between items-center mb-1">
@@ -357,7 +367,7 @@ function renderReport() {
       </p>
     </div>
 
-    <!-- Resum del cas -->
+    <!-- Dades de la sol·licitud -->
     <div class="report-body-text mb-5 space-y-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 print:p-2.5 print:mb-2.5">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 print:mb-1">Dades de la sol·licitud</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm print:text-xs">
@@ -368,25 +378,32 @@ function renderReport() {
       </div>
     </div>
 
-    <!-- Analisi de respostes -->
-    <div class="report-body-text mb-5 print:mb-2.5">
-      <h3 class="font-bold text-slate-900 dark:text-white mb-2 print:text-sm print:mb-1">Anàlisi de respostes:</h3>
-      ${analysisHTML}
-    </div>
-
     <!-- Resultat de la valoracio -->
-    <div class="report-result-level my-5 p-4 rounded-xl border font-bold ${getLevelColorStyle(finalLevel)} print:p-2 print:my-2 print:text-xs">
+    <div class="report-result-level my-4 p-4 rounded-xl border font-bold ${getLevelColorStyle(finalLevel)} print:p-2 print:my-2 print:text-xs">
       Resultat de la valoració: NIVELL FINAL ${finalLevel}
     </div>
 
-    <!-- Text normatiu del nivell -->
+    <!-- Descripcio del nivell -->
     <div class="report-body-text mb-5 p-4 bg-slate-100 dark:bg-slate-700/40 rounded-lg print:p-2 print:mb-2">
       <p class="italic text-slate-800 dark:text-slate-200 print:text-xs">"${normativeTexts[finalLevel]}"</p>
     </div>
 
-    <!-- Dades de contacte -->
-    <div class="report-body-text mb-5 print:mb-2">
-      <p><strong>Dades de contacte:</strong> Busqueu el <strong>referent d'automatització i IA</strong> de <strong>${escapeHtml(state.departament)}</strong> directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.</p>
+    <!-- Bloc de sol·licitud d'acompanyament (si escau) -->
+    ${firstAgentNoticeHTML}
+
+    <!-- Desplegable d'analisi de respostes -->
+    <details class="mb-5 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/40">
+      <summary class="font-semibold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none text-sm">
+        Desplegar anàlisi de les respostes
+      </summary>
+      <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2 text-sm print:text-xs">
+        ${analysisHTML}
+      </div>
+    </details>
+
+    <!-- Dades de contacte adaptades -->
+    <div class="report-body-text mb-5 text-sm print:text-xs print:mb-2">
+      ${contactHTML}
     </div>
 
     <!-- Frase literal de tancament -->
@@ -394,112 +411,61 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Aclariment de les opcions d'accio -->
-    <div class="mt-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-xs md:text-sm text-slate-600 dark:text-slate-300 space-y-3 no-print">
-      <p class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 text-base">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Indications per a la tramitació de l'informe:
-      </p>
-      <ul class="space-y-2 list-disc pl-5">
-        <li><strong>Enviar per correu:</strong> Obre el gestor de correu electrònic amb l'informe dirigit a <code>${EMAIL_GOVERNANCA}</code> i descarrega la còpia .md. Aquest pas és necessari per registrar oficialment el cas d'ús i sol·licitar el suport de l'Escola d'Agents.</li>
-        <li><strong>Copiar text:</strong> Copia el contingut íntegre de l'informe al portapapers per enganxar-lo en aplicacions com Outlook Web o Microsoft Teams.</li>
-        <li><strong>Descarregar informe (.md):</strong> Desa una còpia del document en format Markdown al vostre equip.</li>
-        <li><strong>Imprimir / Desar en PDF:</strong> Genera un document en format PDF maquetat per a expedients o arxius interns.</li>
-      </ul>
+    <!-- Opció de tramitació (2 sortides principals) -->
+    <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-end no-print">
+      <button onclick="printReport()" class="btn-secondary">
+        Generar informe en PDF
+      </button>
+      <button onclick="sendEmailReport()" class="btn-primary">
+        Enviar informació per correu
+      </button>
     </div>
   `;
 }
 
-// Generacio del text en format Markdown (.md)
-function generateMarkdownReport() {
+// Genera el text integrat per al cos del correu electronic
+function generateEmailBody() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
-  let md = `# Informe de valoració del nivell d'un cas d'ús de IA\n\n`;
-  md += `**Departament / Ens:** ${state.departament}\n`;
-  md += `**Correu de contacte:** ${state.emailContacte}\n`;
-  md += `**Procés i Finalitat:** ${state.proces}\n`;
-  md += `**Primer agent desenvolupat:** ${state.esPrimerAgent ? "Sí (Acompanyament per l'Escola d'Agents)" : 'No'}\n\n`;
+  let bodyText = `INFORME DE VALORACIÓ DEL CAS D'ÚS D'IA\n`;
+  bodyText += `===========================================\n\n`;
+  bodyText += `DADES DE LA SOL·LICITUD:\n`;
+  bodyText += `- Departament / Ens: ${state.departament}\n`;
+  bodyText += `- Correu de contacte: ${state.emailContacte}\n`;
+  bodyText += `- Procés i Finalitat: ${state.proces}\n`;
+  bodyText += `- Sol·licita acompanyament Escola d'Agents: ${state.esPrimerAgent ? 'Sí' : 'No'}\n\n`;
 
-  md += `--- \n\n`;
-  md += `### Anàlisi de respostes:\n\n`;
+  bodyText += `RESULTAT DE LA VALORACIÓ:\n`;
+  bodyText += `NIVELL FINAL ${finalLevel}\n`;
+  bodyText += `Descripció: ${normativeTexts[finalLevel]}\n\n`;
 
+  bodyText += `ANÀLISI DE RESPOSTES:\n`;
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
     const selected = state.answers[qKey] || [];
     const qLevel = questionLevels[qKey] || 1;
     const optsText = selected.map(o => `${o}) ${optionLabels[qKey][o]}`).join('; ');
-
-    md += `- **${questionTitles[qKey]}**\n`;
-    md += `  - *Opcions seleccionades:* ${optsText}\n`;
-    md += `  - *Nivell obtingut:* **Nivell ${qLevel}**\n\n`;
+    bodyText += `- ${questionTitles[qKey]}: ${optsText} (Nivell ${qLevel})\n`;
   }
 
-  md += `--- \n\n`;
-  md += `### Resultat de la valoració: NIVELL FINAL ${finalLevel}\n\n`;
-  md += `> "${normativeTexts[finalLevel]}"\n\n`;
-  md += `**Dades de contacte:** Busqueu el **referent d'automatització i IA** de **${state.departament}** directament a la llista corporativa de SharePoint per validar el vostre cas d'ús.\n\n`;
-  md += `*Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.*\n`;
-
-  return md;
+  bodyText += `\n---\nEnviat des de l'Eina de Classificació de Casos d'Ús d'IA de la Generalitat de Catalunya.\n`;
+  return bodyText;
 }
 
-// Boto "Copiar text de l'informe" al portapapers
-function copyReportToClipboard() {
-  const mdText = generateMarkdownReport();
-  navigator.clipboard.writeText(mdText).then(() => {
-    const copyBtn = document.getElementById('btn-copy-report');
-    if (copyBtn) {
-      const originalText = copyBtn.innerHTML;
-      copyBtn.innerHTML = `Copiat al portapapers`;
-      copyBtn.classList.add('bg-emerald-600', 'text-white');
-      setTimeout(() => {
-        copyBtn.innerHTML = originalText;
-        copyBtn.classList.remove('bg-emerald-600', 'text-white');
-      }, 2500);
-    }
-  }).catch(err => {
-    alert("No s'ha pogut copiar el text automàticament. Seleccioneu el text manualment.");
-    console.error('Error en copiar: ', err);
-  });
-}
-
-// Imprimir / Desar en PDF
+// Imprimir / Generar PDF
 function printReport() {
   window.print();
 }
 
-// Descarregar fitxer .md
-function downloadMarkdown() {
-  const mdText = generateMarkdownReport();
-  const blob = new Blob([mdText], { type: 'text/markdown;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  const safeDept = (state.departament || 'generalitat').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-
-  link.href = url;
-  link.setAttribute('download', `informe_avaluacio_ia_${safeDept}.md`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-// Enviar per correu mitjancant protocol mailto i descarregar informe .md
+// Enviar informacio incrustada en un correu a l'Escola d'Agents
 function sendEmailReport() {
-  downloadMarkdown();
-
   const dept = state.departament || "Generalitat";
-  const subject = encodeURIComponent(`[Avaluació IA] Informe de cas d'ús - ${dept}`);
-  const bodyText = `Hola,\n\nAdjunt a aquest correu trobareu l'informe de valoració del cas d'ús d'IA en format Markdown (.md) per al departament/ens: ${dept}.\n\nNOTA: El fitxer ".md" s'ha descarregat automaticament a la vostra carpeta de Baixades (Downloads). Si us plau, adjunteu-lo a aquest correu abans d'enviar-lo.\n\nAtentament,\n${state.emailContacte || ''}`;
+  const subject = encodeURIComponent(`[Avaluació IA] Proposta de cas d'ús - ${dept}`);
+  const bodyText = generateEmailBody();
   const body = encodeURIComponent(bodyText);
 
-  setTimeout(() => {
-    window.location.href = `mailto:${EMAIL_GOVERNANCA}?subject=${subject}&body=${body}`;
-  }, 500);
+  window.location.href = `mailto:${EMAIL_GOVERNANCA}?subject=${subject}&body=${body}`;
 }
 
 function getLevelColorStyle(level) {
@@ -521,8 +487,6 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
-// Confirmacio per reiniciar l'avaluacio adlkfkajdf
 
 function confirmResetEvaluation() {
   const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");

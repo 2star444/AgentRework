@@ -19,7 +19,7 @@
       @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
     }
 
-    /* Estils per a impressio i generacio de PDF (1 pagina A4) */
+    /* Estils per a impressio i PDF */
     @media print {
       @page {
         size: A4 portrait;
@@ -51,34 +51,12 @@
         margin: 0 !important;
       }
 
-      h1 {
-        font-size: 1.3rem !important;
-        line-height: 1.2 !important;
-      }
-      h2 {
-        font-size: 1rem !important;
-        margin-bottom: 0.25rem !important;
-      }
-      h3 {
-        font-size: 0.85rem !important;
-        margin-bottom: 0.2rem !important;
+      details {
+        display: block !important;
       }
 
-      .mb-6, .mb-5, .my-6 {
-        margin-bottom: 0.35rem !important;
-        margin-top: 0.25rem !important;
-      }
-
-      .p-4 {
-        padding: 0.35rem 0.5rem !important;
-      }
-
-      .p-6 {
-        padding: 0 !important;
-      }
-
-      .space-y-4 > * + * {
-        margin-top: 0.35rem !important;
+      details summary {
+        display: none !important;
       }
 
       #report-container {
@@ -311,12 +289,12 @@
       </div>
     </div>
 
-    <!-- PAS 5: Pregunta 5 (Opcio Unica via Radio) -->
+    <!-- PAS 5: Pregunta 5 (Opció Única) -->
     <div id="step-5" class="step-card hidden">
       <h2 tabindex="-1" class="text-xl font-bold text-slate-900 dark:text-white mb-2 focus:outline-none">
         Pregunta 5: Nombre d'usuaris
       </h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Selecciona l'opció que s'apliquin al teu cas:</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Selecciona l'opció que s'apliqui al teu cas:</p>
 
       <div class="space-y-3">
         <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
@@ -348,16 +326,6 @@
     <!-- PANTALLA DE RESULTAT I INFORME -->
     <div id="step-result" class="step-card hidden">
       <div id="report-container"></div>
-
-      <!-- Botons d'accio per a l'informe -->
-      <div class="mt-6 flex flex-wrap gap-3 justify-end no-print">
-        <button onclick="prevStep()" class="btn-secondary">&larr; Modificar respostes</button>
-        <button id="btn-copy-report" onclick="copyReportToClipboard()" class="btn-secondary">Copiar text</button>
-        <button onclick="downloadMarkdown()" class="btn-secondary">Baixar .MD</button>
-        <button onclick="printReport()" class="btn-secondary">Imprimir / Desar PDF</button>
-        <button onclick="sendEmailReport()" class="btn-primary">Enviar per correu</button>
-        <button onclick="confirmResetEvaluation()" class="btn-secondary text-red-600 border-red-200 hover:bg-red-50">Reiniciar</button>
-      </div>
     </div>
 
   </main>
