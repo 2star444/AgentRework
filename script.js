@@ -154,7 +154,7 @@ function restoreStateFromLocalStorage() {
   }
 }
 
-// Validacio estricta de correu electronic i desat de context
+// Validacio de correu electrònic i desat de context
 function submitContext() {
   const deptElem = document.getElementById('departament');
   const emailElem = document.getElementById('email-contacte');
@@ -168,7 +168,6 @@ function submitContext() {
   const isFirstAgent = document.getElementById('primer-agent')?.checked || false;
   const err = document.getElementById('error-0');
 
-  // Expressio regular per a validacio de correu electrònic
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailValid = emailRegex.test(emailInput);
   const isValid = deptInput && procInput && emailInput && isEmailValid;
@@ -327,7 +326,7 @@ function renderReport() {
     `;
   }
 
-  // Bloc d'acompanyament de l'Escola d'Agents (just despres del resultat)
+  // Bloc d'acompanyament de l'Escola d'Agents
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
@@ -415,8 +414,8 @@ function renderReport() {
 
     <!-- Accions de tramitacio i gestio -->
     <div class="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-700 no-print">
-      <button onclick="confirmResetEvaluation()" class="btn-danger w-full sm:w-auto">
-        Reiniciar avaluació
+      <button onclick="startNewEvaluation()" class="btn-secondary w-full sm:w-auto">
+        + Nova avaluació
       </button>
       
       <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto justify-end">
@@ -479,28 +478,8 @@ function sendEmailReport() {
   window.location.href = `mailto:${EMAIL_GOVERNANCA}?subject=${subject}&body=${body}`;
 }
 
-function getLevelColorStyle(level) {
-  if (level === 1) {
-    return 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200';
-  } else if (level === 2) {
-    return 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200';
-  } else {
-    return 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200';
-  }
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function confirmResetEvaluation() {
-  const confirmed = window.confirm("Esteu segur que voleu reiniciar l'avaluació? Es perdran totes les respostes introduïdes.");
+function startNewEvaluation() {
+  const confirmed = window.confirm("Voleu iniciar una nova avaluació? Es netejaran les dades de l'avaluació actual per introduir un nou cas d'ús.");
   if (confirmed) {
     resetEvaluation();
   }
@@ -532,6 +511,26 @@ function resetEvaluation() {
   }
 
   goToStep(0);
+}
+
+function getLevelColorStyle(level) {
+  if (level === 1) {
+    return 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200';
+  } else if (level === 2) {
+    return 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200';
+  } else {
+    return 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200';
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 // Navegacio amb tecla ENTER
