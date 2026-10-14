@@ -85,7 +85,7 @@ const normativeTexts = {
   3: "L'agent que vols construir és de nivell 3, ús corporatiu. No el pots desenvolupar tu. Posa't en contacte amb l'àmbit competent en temes d'organització i amb l'Àrea TIC del teu departament o ens per tal d'explicar-los les teves necessitats i que ells valorin quina és la solució òptima a desenvolupar."
 };
 
-// Mapa de percentatges per a la barra de progres
+// Percentatges de la barra de progres
 const progressPercentages = {
   0: '15%',
   1: '30%',
@@ -96,12 +96,12 @@ const progressPercentages = {
   'result': '100%'
 };
 
-// Carregador inicial i restauracio des de localStorage
+// Carregador inicial
 document.addEventListener('DOMContentLoaded', () => {
   restoreStateFromLocalStorage();
 });
 
-// Desat de l'estat actual a localStorage
+// Desat a localStorage
 function saveStateToLocalStorage() {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
@@ -110,7 +110,7 @@ function saveStateToLocalStorage() {
   }
 }
 
-// Restauracio de l'estat des de localStorage
+// Restauracio des de localStorage
 function restoreStateFromLocalStorage() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -154,7 +154,7 @@ function restoreStateFromLocalStorage() {
   }
 }
 
-// Fase 1: Validar i desar context
+// Validacio estricta de correu electronic i desat de context
 function submitContext() {
   const deptElem = document.getElementById('departament');
   const emailElem = document.getElementById('email-contacte');
@@ -168,7 +168,9 @@ function submitContext() {
   const isFirstAgent = document.getElementById('primer-agent')?.checked || false;
   const err = document.getElementById('error-0');
 
-  const isEmailValid = emailInput.includes('@') && emailInput.includes('.');
+  // Expressio regular per a validacio de correu electrònic
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = emailRegex.test(emailInput);
   const isValid = deptInput && procInput && emailInput && isEmailValid;
 
   deptElem.setAttribute('aria-invalid', !deptInput);
@@ -190,7 +192,7 @@ function submitContext() {
   goToStep(1);
 }
 
-// Fase 2: Navegacio endavant
+// Navegacio entre preguntes
 function nextQuestion(qNum) {
   const selected = Array.from(document.querySelectorAll(`input[name="p${qNum}"]:checked`)).map(c => c.value);
   const err = document.getElementById(`error-${qNum}`);
@@ -207,7 +209,6 @@ function nextQuestion(qNum) {
   goToStep(qNum + 1);
 }
 
-// Boto "Enrere"
 function prevStep() {
   if (typeof state.currentStep === 'number' && state.currentStep > 0) {
     goToStep(state.currentStep - 1);
@@ -216,7 +217,6 @@ function prevStep() {
   }
 }
 
-// Canvi de pantalla, actualitzacio de progres i focus
 function goToStep(stepNum, shouldFocus = true) {
   state.currentStep = stepNum;
 
@@ -264,7 +264,7 @@ function goToStep(stepNum, shouldFocus = true) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Fase 3 & 4: Calcul del Nivell Final i generacio de l'Informe
+// Calcul de nivell final
 function calculateResult() {
   const selectedP5 = Array.from(document.querySelectorAll('input[name="p5"]:checked')).map(c => c.value);
   const err5 = document.getElementById('error-5');
@@ -302,6 +302,7 @@ function calculateResult() {
   goToStep('result');
 }
 
+// Renderitzacio de l'informe
 function renderReport() {
   const container = document.getElementById('report-container');
   if (!container) return;
@@ -309,7 +310,7 @@ function renderReport() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
-  // Analisi detallada de respostes
+  // Analisi de respostes
   let analysisHTML = '';
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
@@ -326,7 +327,7 @@ function renderReport() {
     `;
   }
 
-  // Bloc d'acompanyament de l'Escola d'Agents
+  // Bloc d'acompanyament de l'Escola d'Agents (just despres del resultat)
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
@@ -340,11 +341,11 @@ function renderReport() {
     `;
   }
 
-  // Dades de contacte adaptades
+  // Dades de contacte condicionals
   let contactHTML = '';
   if (state.esPrimerAgent) {
     contactHTML = `
-      <p><strong>Dades de contacte:</strong> Per a qualsevol dubte o per a la gestió de la sol·licitud d'acompanyament de l'Escola d'Agents, podeu adreçar-vos a la bústia <strong><a href="mailto:${EMAIL_GOVERNANCA}" class="text-red-700 underline">${EMAIL_GOVERNANCA}</a></strong> o directament a Alejandro Juridovic (<strong><a href="mailto:${EMAIL_ALEJANDRO}" class="text-red-700 underline">${EMAIL_ALEJANDRO}</a></strong>).</p>
+      <p><strong>Dades de contacte:</strong> Per a qualsevol dubte o per a la gestió de la sol·licitud d'acompanyament de l'Escola d'Agents, podeu adreçar-vos a la bústia <strong><a href="mailto:${EMAIL_GOVERNANCA}" class="text-red-700 underline font-medium">${EMAIL_GOVERNANCA}</a></strong> o directament a Alejandro Juridovic (<strong><a href="mailto:${EMAIL_ALEJANDRO}" class="text-red-700 underline font-medium">${EMAIL_ALEJANDRO}</a></strong>).</p>
     `;
   } else {
     contactHTML = `
@@ -392,9 +393,10 @@ function renderReport() {
     ${firstAgentNoticeHTML}
 
     <!-- Desplegable d'analisi de respostes -->
-    <details class="mb-5 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/40">
-      <summary class="font-semibold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none text-sm">
-        Desplegar anàlisi de les respostes
+    <details class="mb-5 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/40 group">
+      <summary class="font-semibold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none text-sm select-none flex items-center justify-between">
+        <span>Desplegar anàlisi de les respostes</span>
+        <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform duration-200">▼</span>
       </summary>
       <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2 text-sm print:text-xs">
         ${analysisHTML}
@@ -407,26 +409,32 @@ function renderReport() {
     </div>
 
     <!-- Frase literal de tancament -->
-    <div class="report-body-text pt-3 border-t border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs print:pt-1">
+    <div class="report-body-text pt-3 border-t border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs print:pt-1 mb-6">
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Botons d'accio (Modificar respostes, Generar PDF, Enviar per correu) -->
-    <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-3 justify-end no-print">
-      <button onclick="prevStep()" class="btn-secondary">
-        Modificar respostes
+    <!-- Accions de tramitacio i gestio -->
+    <div class="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-700 no-print">
+      <button onclick="confirmResetEvaluation()" class="btn-danger w-full sm:w-auto">
+        Reiniciar avaluació
       </button>
-      <button onclick="printReport()" class="btn-secondary">
-        Generar informe en PDF
-      </button>
-      <button onclick="sendEmailReport()" class="btn-primary">
-        Enviar informació per correu
-      </button>
+      
+      <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto justify-end">
+        <button onclick="prevStep()" class="btn-secondary">
+          Modificar respostes
+        </button>
+        <button onclick="printReport()" class="btn-secondary">
+          Generar informe en PDF
+        </button>
+        <button onclick="sendEmailReport()" class="btn-primary">
+          Enviar informació per correu
+        </button>
+      </div>
     </div>
   `;
 }
 
-// Genera el text integrat per al cos del correu electronic
+// Genera el text compactat per al cos del correu electronic
 function generateEmailBody() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;

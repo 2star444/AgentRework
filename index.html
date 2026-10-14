@@ -15,11 +15,14 @@
     .btn-secondary {
       @apply w-full sm:w-auto px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg border border-slate-300 dark:border-slate-600 transition-colors shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 text-center;
     }
+    .btn-danger {
+      @apply w-full sm:w-auto px-4 py-2.5 bg-transparent hover:bg-red-50 dark:hover:bg-red-950/30 text-red-700 dark:text-red-400 font-medium rounded-lg border border-red-200 dark:border-red-900 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 text-center text-sm;
+    }
     .step-card {
       @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
     }
 
-    /* Estils per a impressio i PDF */
+    /* Estils d'impressio i generacio de PDF (A4 optimitzat) */
     @media print {
       @page {
         size: A4 portrait;
@@ -51,7 +54,8 @@
         margin: 0 !important;
       }
 
-      details {
+      /* Forcar l'obertura del desplegable al PDF */
+      details, details > * {
         display: block !important;
       }
 
@@ -120,12 +124,12 @@
 
         <div class="flex items-center gap-2 pt-2">
           <input type="checkbox" id="primer-agent" class="h-4 w-4 text-red-700 rounded border-slate-300 focus:ring-red-700">
-          <label for="primer-agent" class="text-sm text-slate-700 dark:text-slate-300">
+          <label for="primer-agent" class="text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
             És el primer agent que desenvolupeu? (Permet sol·licitar acompanyament)
           </label>
         </div>
 
-        <p id="error-0" class="text-sm text-red-600 hidden font-medium">Si us plau, omple tots els camps obligatoris i introdueix un correu vàlid.</p>
+        <p id="error-0" class="text-sm text-red-600 hidden font-medium">Si us plau, omple tots els camps obligatoris i introdueix un correu electrònic vàlid.</p>
 
         <div class="pt-4 flex justify-end">
           <button onclick="submitContext()" class="btn-primary">Començar Qüestionari &rarr;</button>
@@ -289,7 +293,7 @@
       </div>
     </div>
 
-    <!-- PAS 5: Pregunta 5 (Opció Única) -->
+    <!-- PAS 5: Pregunta 5 (Opcio Unica via Radio) -->
     <div id="step-5" class="step-card hidden">
       <h2 tabindex="-1" class="text-xl font-bold text-slate-900 dark:text-white mb-2 focus:outline-none">
         Pregunta 5: Nombre d'usuaris
