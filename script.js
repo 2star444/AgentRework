@@ -433,7 +433,7 @@ function renderReport() {
   `;
 }
 
-// Genera el text compactat per al cos del correu electronic
+// Genera text compactat correu electronic
 function generateEmailBody() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
@@ -468,7 +468,7 @@ function printReport() {
   window.print();
 }
 
-// Enviar informacio incrustada en un correu a l'Escola d'Agents
+// Enviar correu a l'Escola d'Agents
 function sendEmailReport() {
   const dept = state.departament || "Generalitat";
   const subject = encodeURIComponent(`[Avaluació IA] Proposta de cas d'ús - ${dept}`);
