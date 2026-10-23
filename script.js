@@ -1,13 +1,13 @@
 // Clau per al desat a la memòria local
 const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
 
-// Configuració del lloc i la llista exacta de SharePoint
+// Configuració del lloc i la llista exacta de SharePoint (netejada d'espais)
 const SHAREPOINT_CONFIG = {
   siteUrl: "https://gencat.sharepoint.com/sites/DGIA",
   listTitle: "Referents dels programes DGIA"
 };
 
-// Base de dades que es carregarà en temps real des de SharePoint
+// Base de dades que es carregarà des de SharePoint o des del fallback local
 let REFERENTS_DATASET = [];
 
 // Memòria de l'estat de l'avaluació
@@ -97,19 +97,17 @@ const progressPercentages = {
   'result': '100%'
 };
 
-// Carrega i fusiona la llista de departaments (HTML predefinit + dades SharePoint)
+// Carrega i fusiona la llista de departaments (HTML predefinit + dades carregarà)
 function populateDepartmentDatalist() {
   const datalist = document.getElementById('departaments-list');
   if (!datalist) return;
 
   const depts = new Set();
 
-  // Agafem primer els departaments presents a l'HTML per defecte
   Array.from(datalist.options).forEach(opt => {
     if (opt.value && opt.value.trim() !== '') depts.add(opt.value.trim());
   });
 
-  // Afegim els que venen de SharePoint
   if (REFERENTS_DATASET && REFERENTS_DATASET.length) {
     REFERENTS_DATASET.forEach(item => {
       if (item.dept && item.dept.trim() !== '') depts.add(item.dept.trim());
@@ -117,7 +115,6 @@ function populateDepartmentDatalist() {
     });
   }
 
-  // Ordenem alfabèticament respectant els caràcters en català
   const sortedDepts = Array.from(depts).sort((a, b) => a.localeCompare(b, 'ca'));
 
   datalist.innerHTML = sortedDepts
@@ -125,11 +122,12 @@ function populateDepartmentDatalist() {
     .join('');
 }
 
-// Càrrega directa des de l'API REST de SharePoint
+// Càrrega des de SharePoint amb fallback automàtic a referents.json
 async function loadReferentsFromSharePoint() {
-  try {
-    const endpoint = `${SHAREPOINT_CONFIG.siteUrl}/_api/web/lists/getbytitle('${encodeURIComponent(SHAREPOINT_CONFIG.listTitle)}')/items?$top=500`;
+  const cleanUrl = SHAREPOINT_CONFIG.siteUrl.trim().replace(/\/+$/, '');
+  const endpoint = `${cleanUrl}/_api/web/lists/getbytitle('${encodeURIComponent(SHAREPOINT_CONFIG.listTitle)}')/items?$top=500`;
 
+  try {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
@@ -154,26 +152,28 @@ async function loadReferentsFromSharePoint() {
       console.log(`S'han carregat ${REFERENTS_DATASET.length} referents directament des de SharePoint.`);
       populateDepartmentDatalist();
     } else {
-      console.warn("Error en carregar des de SharePoint. Utilitzant còpia local...");
+      console.warn("Restricció de resposta a SharePoint. Carregant el fitxer de seguretat referents.json...");
       await loadFallbackJSON();
     }
   } catch (error) {
-    console.warn("Error de connexió REST amb SharePoint. Utilitzant còpia local...", error);
+    console.warn("No s'ha pogut establir connexió directa amb SharePoint (CORS/Entorn extern). Carregant referents.json...", error);
     await loadFallbackJSON();
   }
 }
 
-// Càrrega de seguretat (fallback) des del fitxer local referents.json
+// Carrega la còpia local en cas que la connexió a SharePoint falli
 async function loadFallbackJSON() {
   try {
     const response = await fetch('referents.json');
     if (response.ok) {
       REFERENTS_DATASET = await response.json();
-      console.log(`Reserva activada: ${REFERENTS_DATASET.length} referents carregats des de referents.json.`);
+      console.log(`Còpia local activada amb èxit: ${REFERENTS_DATASET.length} registres de referents carregats.`);
       populateDepartmentDatalist();
+    } else {
+      console.error("Tampoc s'ha trobat el fitxer referents.json al directori arrel del projecte.");
     }
   } catch (e) {
-    console.warn("No s'ha pogut carregar el fitxer local referents.json:", e);
+    console.error("Error al carregar el fitxer referents.json:", e);
   }
 }
 
@@ -377,7 +377,6 @@ function calculateResult() {
   goToStep('result');
 }
 
-// Cerca de referents sobre el dataset descarregat
 function searchReferents(userDept) {
   if (!userDept || !REFERENTS_DATASET.length) return [];
 
@@ -403,7 +402,6 @@ function searchReferents(userDept) {
   return matches;
 }
 
-// Renderització de l'informe final
 function renderReport() {
   const container = document.getElementById('report-container');
   if (!container) return;

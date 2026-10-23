@@ -1,0 +1,98 @@
+[
+  {
+    "nom": "Miquel Vecino Cubero",
+    "tipus": "Referent estratègic",
+    "dept": "Departament d'Economia i Hisenda",
+    "unitat": "Subdirecció General",
+    "entitat": "",
+    "correu": "miquel.vecino@gencat.cat"
+  },
+  {
+    "nom": "Núria Espuny Salvadó",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament d'Interior i Seguretat Pública",
+    "unitat": "Responsable de coordinació",
+    "entitat": "",
+    "correu": "nuria.espuny@gencat.cat"
+  },
+  {
+    "nom": "Anna Puig Miquel",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament d'Unió Europea i Acció Exterior",
+    "unitat": "Subdirectora General",
+    "entitat": "",
+    "correu": "annapuig@gencat.cat"
+  },
+  {
+    "nom": "Joan Gibert Pons",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament de Territori, Habitatge i Transició Ecològica",
+    "unitat": "Subdirector General",
+    "entitat": "",
+    "correu": "joan.gibert@gencat.cat"
+  },
+  {
+    "nom": "Alexandre Armadàs Sabate",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament d'Educació i Formació Professional",
+    "unitat": "Consorci d'Educació",
+    "entitat": "Consorci d'Educació de Barcelona",
+    "correu": "alexandre.armadas@gencat.cat"
+  },
+  {
+    "nom": "Gemma Sala Molins",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament de la Presidència",
+    "unitat": "Subdirecció General",
+    "entitat": "",
+    "correu": "gemma.salam@gencat.cat"
+  },
+  {
+    "nom": "Joan Solé Villanueva",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament d'Economia i Hisenda",
+    "unitat": "Àrea de RH i Organització",
+    "entitat": "Agència Tributària de Catalunya",
+    "correu": "joan.solev@atc.cat"
+  },
+  {
+    "nom": "Josep Marsellès",
+    "tipus": "Referent d'automatització i IA",
+    "dept": "Departament d'Interior i Seguretat Pública",
+    "unitat": "Servei Català de Trànsit",
+    "entitat": "Servei Català de Trànsit",
+    "correu": "josep.marselles@gencat.cat"
+  },
+  {
+    "nom": "Amor Llanos",
+    "tipus": "Referent tècnic",
+    "dept": "Departament d'Economia i Hisenda",
+    "unitat": "CTTI",
+    "entitat": "Centre de Telecomunicacions i Tecnologies de la Informació",
+    "correu": "amor.llanos@ctti.gencat.cat"
+  },
+  {
+    "nom": "Jorge Azpilicueta Fernández",
+    "tipus": "Referent estratègic",
+    "dept": "Departament d'Agricultura, Ramaderia, Pesca i Alimentació",
+    "unitat": "Servei d'Organització",
+    "entitat": "",
+    "correu": "jorge.azpilicueta@gencat.cat"
+  },
+  {
+    "nom": "Albert Godayol Soler",
+    "tipus": "Referent tècnic",
+    "dept": "Departament d'Agricultura, Ramaderia, Pesca i Alimentació",
+    "unitat": "",
+    "entitat": "",
+    "correu": "albert.godayol@gencat.cat"
+  },
+  {
+    "nom": "Xavier Pereira",
+    "tipus": "Referent estratègic",
+    "dept": "Departament de Cultura",
+    "unitat": "Àrea d'Administració",
+    "entitat": "",
+    "correu": "xavier.pereira@gencat.cat"
+  }
+]
