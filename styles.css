@@ -1,70 +1,194 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ==========================================================================
+   Generalitat de Catalunya - Eina de Classificació de Casos d'Ús d'IA
+   Fitxer d'estils CSS corregit (Compatibilitat directa amb el navegador)
+   ========================================================================== */
 
-@layer components {
-  .btn-primary {
-    @apply w-full sm:w-auto px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-medium rounded-lg transition-colors shadow-sm cursor-pointer disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700 text-center;
-  }
-  .btn-secondary {
-    @apply w-full sm:w-auto px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg border border-slate-300 dark:border-slate-600 transition-colors shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 text-center;
-  }
-  .step-card {
-    @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
-  }
+/* Variables globals de color */
+:root {
+  --gencat-red: #b91c1c;
+  --gencat-red-hover: #991b1b;
+  --gencat-red-light: #fef2f2;
 }
 
-/* Estils corporatius d'impressió i PDF (Format A4 Generalitat de Catalunya) */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 0.8cm 1cm !important;
-  }
-
-  button, 
-  #progress-bar-container, 
-  #top-progress-bar,
-  .no-print,
-  header,
-  footer {
-    display: none !important;
-  }
-
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-size: 10.5px !important;
-    line-height: 1.25 !important;
-  }
-
-  .step-card {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Desplegar l'anàlisi de respostes automàticament al PDF */
-  details, details > * {
-    display: block !important;
-  }
-
-  details summary {
-    display: none !important;
-  }
-
-  #report-container {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
+/* Transició suau de la barra de progrés superior */
+#top-progress-bar {
+  transition: width 0.3s ease-in-out;
 }
 
+/* --------------------------------------------------------------------------
+   ESTILS DE BOTONS (CSS Pur - Compatible directament sense Tailwind CLI)
+   -------------------------------------------------------------------------- */
 .btn-primary {
-  @apply px-4 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 cursor-pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  background-color: var(--gencat-red);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--gencat-red-hover);
+}
+
+.btn-primary:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--gencat-red);
 }
 
 .btn-secondary {
-  @apply px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 cursor-pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-secondary:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #94a3b8;
+}
+
+/* Suport de mode fosc per als botons */
+.dark .btn-secondary {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+.dark .btn-secondary:hover {
+  background-color: #334155;
+  color: #ffffff;
+  border-color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   FORMULARIS I VALIDACIÓ D'ERRORS
+   -------------------------------------------------------------------------- */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.dark input[aria-invalid="true"],
+.dark textarea[aria-invalid="true"] {
+  background-color: rgba(127, 29, 29, 0.2) !important;
+}
+
+/* --------------------------------------------------------------------------
+   ESTRUCTURA I WIDGETS
+   -------------------------------------------------------------------------- */
+.step-card {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Neteja de la fletxa predeterminada als desplegables <details> */
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary {
+  list-style: none;
+}
+
+/* --------------------------------------------------------------------------
+   OPTIMITZACIÓ PER A IMPRESSIÓ I GENERACIÓ DE PDF (FORMAT A4)
+   -------------------------------------------------------------------------- */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Ocultar elements no desitjats en PDF / impressió */
+  .no-print,
+  header,
+  footer,
+  #progress-bar-container,
+  nav,
+  button,
+  .btn-primary,
+  .btn-secondary {
+    display: none !important;
+  }
+
+  /* Ajustar el contenidor principal de l'informe */
+  main,
+  .step-card,
+  #report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* Forçar l'obertura del desplegable d'anàlisi en imprimir */
+  details {
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  details > summary {
+    display: none !important;
+  }
+
+  details > div {
+    display: block !important;
+    border-top: none !important;
+    padding-top: 0 !important;
+  }
+
+  /* Mantenir fidelitat de colors al PDF */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Evitar paginació incorrecta a mig bloc de text */
+  .report-body-text,
+  .report-result-level,
+  details {
+    page-break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: #000000 !important;
+  }
 }
