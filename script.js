@@ -97,17 +97,27 @@ const progressPercentages = {
   'result': '100%'
 };
 
-// Carrega la llista de departaments i ens únics al cercador desplegable
+// Carrega i fusiona la llista de departaments (HTML predefinit + dades SharePoint)
 function populateDepartmentDatalist() {
   const datalist = document.getElementById('departaments-list');
-  if (!datalist || !REFERENTS_DATASET.length) return;
+  if (!datalist) return;
 
   const depts = new Set();
-  REFERENTS_DATASET.forEach(item => {
-    if (item.dept && item.dept.trim() !== '') depts.add(item.dept.trim());
-    if (item.entitat && item.entitat.trim() !== '') depts.add(item.entitat.trim());
+
+  // Agafem primer els departaments presents a l'HTML per defecte
+  Array.from(datalist.options).forEach(opt => {
+    if (opt.value && opt.value.trim() !== '') depts.add(opt.value.trim());
   });
 
+  // Afegim els que venen de SharePoint
+  if (REFERENTS_DATASET && REFERENTS_DATASET.length) {
+    REFERENTS_DATASET.forEach(item => {
+      if (item.dept && item.dept.trim() !== '') depts.add(item.dept.trim());
+      if (item.entitat && item.entitat.trim() !== '') depts.add(item.entitat.trim());
+    });
+  }
+
+  // Ordenem alfabèticament respectant els caràcters en català
   const sortedDepts = Array.from(depts).sort((a, b) => a.localeCompare(b, 'ca'));
 
   datalist.innerHTML = sortedDepts
@@ -169,6 +179,7 @@ async function loadFallbackJSON() {
 
 // Inicialització en carregar la pàgina
 document.addEventListener('DOMContentLoaded', async () => {
+  populateDepartmentDatalist();
   await loadReferentsFromSharePoint();
   restoreStateFromLocalStorage();
 });
@@ -366,7 +377,7 @@ function calculateResult() {
   goToStep('result');
 }
 
-// Cerca sobre les dades descarregades de SharePoint
+// Cerca de referents sobre el dataset descarregat
 function searchReferents(userDept) {
   if (!userDept || !REFERENTS_DATASET.length) return [];
 
@@ -392,6 +403,7 @@ function searchReferents(userDept) {
   return matches;
 }
 
+// Renderització de l'informe final
 function renderReport() {
   const container = document.getElementById('report-container');
   if (!container) return;
@@ -525,18 +537,18 @@ function renderReport() {
 
     <!-- Accions de tramitació -->
     <div class="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-700 no-print">
-      <button onclick="startNewEvaluation()" class="btn-secondary w-full sm:w-auto">
+      <button onclick="startNewEvaluation()" class="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer">
         + Nova avaluació
       </button>
       
       <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full sm:w-auto justify-end">
-        <button onclick="prevStep()" class="btn-secondary">
+        <button onclick="prevStep()" class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer">
           Modificar respostes
         </button>
-        <button onclick="printReport()" class="btn-secondary">
+        <button onclick="printReport()" class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer">
           Generar informe en PDF
         </button>
-        <button onclick="sendEmailReport()" class="btn-primary">
+        <button onclick="sendEmailReport()" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 cursor-pointer">
           Enviar informació per correu
         </button>
       </div>
