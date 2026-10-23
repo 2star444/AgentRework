@@ -3,11 +3,8 @@ const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
 
 // Configuració del lloc i llista de SharePoint
 const SHAREPOINT_CONFIG = {
-  // URL base del lloc de SharePoint
   siteUrl: "https://gencat.sharepoint.com/sites/DGIA",
-  
-  // Nom exacte de la llista a SharePoint
-  listTitle: "Referents IA"
+  listTitle: "Referents dels programes DGIA"
 };
 
 // Base de dades que es carregarà en temps real des de SharePoint
