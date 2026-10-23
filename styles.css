@@ -3,88 +3,87 @@
    Fitxer d'estils CSS corregit (Compatibilitat directa amb el navegador)
    ========================================================================== */
 
-/* Variables globals de color */
 :root {
   --gencat-red: #b91c1c;
   --gencat-red-hover: #991b1b;
-  --gencat-red-light: #fef2f2;
 }
 
-/* Transició suau de la barra de progrés superior */
+/* Transició de la barra de progrés */
 #top-progress-bar {
   transition: width 0.3s ease-in-out;
 }
 
 /* --------------------------------------------------------------------------
-   ESTILS DE BOTONS (CSS Pur - Compatible directament sense Tailwind CLI)
+   ESTILS DE BOTONS (Forçats amb !important per evitar resets de Tailwind)
    -------------------------------------------------------------------------- */
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem 1.25rem;
-  background-color: var(--gencat-red);
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
-  cursor: pointer;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.15s ease-in-out;
-  text-decoration: none;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.625rem 1.25rem !important;
+  background-color: #b91c1c !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #b91c1c !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out !important;
+  text-decoration: none !important;
 }
 
 .btn-primary:hover {
-  background-color: var(--gencat-red-hover);
+  background-color: #991b1b !important;
+  border-color: #991b1b !important;
 }
 
 .btn-primary:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--gencat-red);
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #b91c1c !important;
 }
 
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem 1.25rem;
-  background-color: #ffffff;
-  color: #334155;
-  border: 1px solid #cbd5e1;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.15s ease-in-out;
-  text-decoration: none;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.625rem 1.25rem !important;
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  border-radius: 0.5rem !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out !important;
+  text-decoration: none !important;
 }
 
 .btn-secondary:hover {
-  background-color: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
 }
 
 .btn-secondary:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #94a3b8;
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #94a3b8 !important;
 }
 
-/* Suport de mode fosc per als botons */
+/* Suport de Mode Fosc */
 .dark .btn-secondary {
-  background-color: #1e293b;
-  color: #e2e8f0;
-  border-color: #475569;
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
 }
 
 .dark .btn-secondary:hover {
-  background-color: #334155;
-  color: #ffffff;
-  border-color: #64748b;
+  background-color: #334155 !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -103,13 +102,12 @@ select[aria-invalid="true"] {
 }
 
 /* --------------------------------------------------------------------------
-   ESTRUCTURA I WIDGETS
+   ESTRUCTURA I DESPLEGABLES
    -------------------------------------------------------------------------- */
 .step-card {
   transition: opacity 0.2s ease-in-out;
 }
 
-/* Neteja de la fletxa predeterminada als desplegables <details> */
 details summary::-webkit-details-marker {
   display: none;
 }
@@ -134,7 +132,6 @@ details summary {
     line-height: 1.4 !important;
   }
 
-  /* Ocultar elements no desitjats en PDF / impressió */
   .no-print,
   header,
   footer,
@@ -146,7 +143,6 @@ details summary {
     display: none !important;
   }
 
-  /* Ajustar el contenidor principal de l'informe */
   main,
   .step-card,
   #report-container {
@@ -159,7 +155,6 @@ details summary {
     background: transparent !important;
   }
 
-  /* Forçar l'obertura del desplegable d'anàlisi en imprimir */
   details {
     border: 1px solid #cbd5e1 !important;
   }
@@ -174,13 +169,11 @@ details summary {
     padding-top: 0 !important;
   }
 
-  /* Mantenir fidelitat de colors al PDF */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Evitar paginació incorrecta a mig bloc de text */
   .report-body-text,
   .report-result-level,
   details {

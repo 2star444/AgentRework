@@ -1,7 +1,7 @@
 // Clau per al desat a la memòria local
 const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
 
-// Configuració del lloc i llista de SharePoint
+// Configuració del lloc i la llista exacta de SharePoint
 const SHAREPOINT_CONFIG = {
   siteUrl: "https://gencat.sharepoint.com/sites/DGIA",
   listTitle: "Referents dels programes DGIA"
@@ -97,10 +97,28 @@ const progressPercentages = {
   'result': '100%'
 };
 
+// Carrega la llista de departaments i ens únics al cercador desplegable
+function populateDepartmentDatalist() {
+  const datalist = document.getElementById('departaments-list');
+  if (!datalist || !REFERENTS_DATASET.length) return;
+
+  const depts = new Set();
+  REFERENTS_DATASET.forEach(item => {
+    if (item.dept && item.dept.trim() !== '') depts.add(item.dept.trim());
+    if (item.entitat && item.entitat.trim() !== '') depts.add(item.entitat.trim());
+  });
+
+  const sortedDepts = Array.from(depts).sort((a, b) => a.localeCompare(b, 'ca'));
+
+  datalist.innerHTML = sortedDepts
+    .map(dept => `<option value="${escapeHtml(dept)}"></option>`)
+    .join('');
+}
+
 // Càrrega directa des de l'API REST de SharePoint
 async function loadReferentsFromSharePoint() {
   try {
-    const endpoint = `${SHAREPOINT_CONFIG.siteUrl}/_api/web/lists/getbytitle('${encodeURIComponent(SHAREPOINT_CONFIG.listTitle)}')/items?$select=Title,Nom,Tipus,Departament,Unitat,Entitat,Correu&$top=500`;
+    const endpoint = `${SHAREPOINT_CONFIG.siteUrl}/_api/web/lists/getbytitle('${encodeURIComponent(SHAREPOINT_CONFIG.listTitle)}')/items?$top=500`;
 
     const response = await fetch(endpoint, {
       method: 'GET',
@@ -115,39 +133,41 @@ async function loadReferentsFromSharePoint() {
       const rawItems = data.value || [];
 
       REFERENTS_DATASET = rawItems.map(item => ({
-        nom: item.Nom || item.Title || '',
-        tipus: item.Tipus || item.TipusReferent || '',
+        nom: item.Nom_x0020_i_x0020_cognoms || item.Nom || item.Title || '',
+        tipus: item.Tipus_x0020_de_x0020_referent || item.TipusReferent || item.Tipus || '',
         dept: item.Departament || '',
-        unitat: item.Unitat || item.UnitatAdministrativa || '',
-        entitat: item.Entitat || item.EntitatSectorPublic || '',
-        correu: item.Correu || item.CorreuElectronic || ''
+        unitat: item.Unitat_x0020_administrativa || item.UnitatAdministrativa || item.Unitat || '',
+        entitat: item.Entitat_x0020_Sector_x0020_P_x00f3_blic || item.EntitatSectorPublic || item.Entitat || '',
+        correu: item.Correu_x0020_electr_x00f2_nic || item.CorreuElectronic || item.Correu || ''
       }));
 
-      console.log(`S'han carregat ${REFERENTS_DATASET.length} referents directament des de l'API de SharePoint.`);
+      console.log(`S'han carregat ${REFERENTS_DATASET.length} referents directament des de SharePoint.`);
+      populateDepartmentDatalist();
     } else {
-      console.warn(`Resposta de SharePoint no vàlida (${response.status}). Carregant còpia local referents.json...`);
+      console.warn("Error en carregar des de SharePoint. Utilitzant còpia local...");
       await loadFallbackJSON();
     }
   } catch (error) {
-    console.warn("Error en connectar amb l'API de SharePoint. Utilitzant còpia local referents.json:", error);
+    console.warn("Error de connexió REST amb SharePoint. Utilitzant còpia local...", error);
     await loadFallbackJSON();
   }
 }
 
-// Càrrega de seguretat (fallback) des del fitxer local en cas de fallada de xarxa o permisos
+// Càrrega de seguretat (fallback) des del fitxer local referents.json
 async function loadFallbackJSON() {
   try {
     const response = await fetch('referents.json');
     if (response.ok) {
       REFERENTS_DATASET = await response.json();
       console.log(`Reserva activada: ${REFERENTS_DATASET.length} referents carregats des de referents.json.`);
+      populateDepartmentDatalist();
     }
   } catch (e) {
     console.warn("No s'ha pogut carregar el fitxer local referents.json:", e);
   }
 }
 
-// Inicialització en carregar el document
+// Inicialització en carregar la pàgina
 document.addEventListener('DOMContentLoaded', async () => {
   await loadReferentsFromSharePoint();
   restoreStateFromLocalStorage();
@@ -301,9 +321,7 @@ function goToStep(stepNum, shouldFocus = true) {
 
     if (shouldFocus) {
       const heading = activeCard.querySelector('h2');
-      if (heading) {
-        heading.focus();
-      }
+      if (heading) heading.focus();
     }
   }
 
@@ -348,13 +366,12 @@ function calculateResult() {
   goToStep('result');
 }
 
-// Cerca intel·ligent sobre les dades descarregades en temps real des de SharePoint
+// Cerca sobre les dades descarregades de SharePoint
 function searchReferents(userDept) {
   if (!userDept || !REFERENTS_DATASET.length) return [];
 
   const query = userDept.toLowerCase().trim();
 
-  // Cerquem primer referents d'automatització i IA
   let matches = REFERENTS_DATASET.filter(ref => {
     const isIA = ref.tipus.toLowerCase().includes("ia") || ref.tipus.toLowerCase().includes("automatització");
     const deptMatch = ref.dept.toLowerCase().includes(query);
@@ -363,7 +380,6 @@ function searchReferents(userDept) {
     return isIA && (deptMatch || unitMatch || entMatch);
   });
 
-  // Si no trobem cap referent d'IA, busquem altres referents relacionats del departament
   if (matches.length === 0) {
     matches = REFERENTS_DATASET.filter(ref => {
       const deptMatch = ref.dept.toLowerCase().includes(query);
@@ -383,7 +399,6 @@ function renderReport() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
-  // Anàlisi de les respostes
   let analysisHTML = '';
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
@@ -400,7 +415,6 @@ function renderReport() {
     `;
   }
 
-  // Bloc d'acompanyament de l'Escola d'Agents
   let firstAgentNoticeHTML = '';
   if (state.esPrimerAgent) {
     firstAgentNoticeHTML = `
@@ -414,7 +428,6 @@ function renderReport() {
     `;
   }
 
-  // Cerca automàtica de contactes en temps real
   let contactHTML = '';
   if (state.esPrimerAgent) {
     contactHTML = `
