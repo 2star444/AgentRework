@@ -1,25 +1,31 @@
-// Clau per al desat a la memoria local
+// Clau per al desat a la memòria local
 const LOCAL_STORAGE_KEY = 'gencat_ia_evaluation_state_v1';
 
-// Memoria de l'estat de l'avaluacio
+// Configuració del lloc i llista de SharePoint
+const SHAREPOINT_CONFIG = {
+  // URL base del lloc de SharePoint
+  siteUrl: "https://gencat.sharepoint.com/sites/DGIA",
+  
+  // Nom exacte de la llista a SharePoint
+  listTitle: "Referents IA"
+};
+
+// Base de dades que es carregarà en temps real des de SharePoint
+let REFERENTS_DATASET = [];
+
+// Memòria de l'estat de l'avaluació
 const state = {
   departament: '',
   emailContacte: '',
   proces: '',
   esPrimerAgent: false,
   currentStep: 0,
-  answers: {
-    p1: [],
-    p2: [],
-    p3: [],
-    p4: [],
-    p5: []
-  },
+  answers: { p1: [], p2: [], p3: [], p4: [], p5: [] },
   computedFinalLevel: 1,
   computedQuestionLevels: {}
 };
 
-// Adreces de correu oficials
+// Adreces de correu oficials de governança i escola d'agents
 const EMAIL_GOVERNANCA = "ia.cat@gencat.cat";
 const EMAIL_ALEJANDRO = "alejandro.jurodovic@gencat.cat";
 
@@ -32,7 +38,6 @@ const optionLevels = {
   p5: { A: 1, B: 2, C: 3, D: 3 }
 };
 
-// Textos literals de les preguntes
 const questionTitles = {
   p1: "Pregunta 1: Utilitat principal de l'agent",
   p2: "Pregunta 2: Nivell d'autonomia de l'agent",
@@ -85,7 +90,6 @@ const normativeTexts = {
   3: "L'agent que vols construir és de nivell 3, ús corporatiu. No el pots desenvolupar tu. Posa't en contacte amb l'àmbit competent en temes d'organització i amb l'Àrea TIC del teu departament o ens per tal d'explicar-los les teves necessitats i que ells valorin quina és la solució òptima a desenvolupar."
 };
 
-// Percentatges de la barra de progres
 const progressPercentages = {
   0: '15%',
   1: '30%',
@@ -96,12 +100,62 @@ const progressPercentages = {
   'result': '100%'
 };
 
-// Carregador inicial
-document.addEventListener('DOMContentLoaded', () => {
+// Càrrega directa des de l'API REST de SharePoint
+async function loadReferentsFromSharePoint() {
+  try {
+    const endpoint = `${SHAREPOINT_CONFIG.siteUrl}/_api/web/lists/getbytitle('${encodeURIComponent(SHAREPOINT_CONFIG.listTitle)}')/items?$select=Title,Nom,Tipus,Departament,Unitat,Entitat,Correu&$top=500`;
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json;odata=nometadata',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const rawItems = data.value || [];
+
+      REFERENTS_DATASET = rawItems.map(item => ({
+        nom: item.Nom || item.Title || '',
+        tipus: item.Tipus || item.TipusReferent || '',
+        dept: item.Departament || '',
+        unitat: item.Unitat || item.UnitatAdministrativa || '',
+        entitat: item.Entitat || item.EntitatSectorPublic || '',
+        correu: item.Correu || item.CorreuElectronic || ''
+      }));
+
+      console.log(`S'han carregat ${REFERENTS_DATASET.length} referents directament des de l'API de SharePoint.`);
+    } else {
+      console.warn(`Resposta de SharePoint no vàlida (${response.status}). Carregant còpia local referents.json...`);
+      await loadFallbackJSON();
+    }
+  } catch (error) {
+    console.warn("Error en connectar amb l'API de SharePoint. Utilitzant còpia local referents.json:", error);
+    await loadFallbackJSON();
+  }
+}
+
+// Càrrega de seguretat (fallback) des del fitxer local en cas de fallada de xarxa o permisos
+async function loadFallbackJSON() {
+  try {
+    const response = await fetch('referents.json');
+    if (response.ok) {
+      REFERENTS_DATASET = await response.json();
+      console.log(`Reserva activada: ${REFERENTS_DATASET.length} referents carregats des de referents.json.`);
+    }
+  } catch (e) {
+    console.warn("No s'ha pogut carregar el fitxer local referents.json:", e);
+  }
+}
+
+// Inicialització en carregar el document
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadReferentsFromSharePoint();
   restoreStateFromLocalStorage();
 });
 
-// Desat a localStorage
 function saveStateToLocalStorage() {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
@@ -110,7 +164,6 @@ function saveStateToLocalStorage() {
   }
 }
 
-// Restauracio des de localStorage
 function restoreStateFromLocalStorage() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -154,7 +207,6 @@ function restoreStateFromLocalStorage() {
   }
 }
 
-// Validacio de correu electrònic i desat de context
 function submitContext() {
   const deptElem = document.getElementById('departament');
   const emailElem = document.getElementById('email-contacte');
@@ -191,7 +243,6 @@ function submitContext() {
   goToStep(1);
 }
 
-// Navegacio entre preguntes
 function nextQuestion(qNum) {
   const selected = Array.from(document.querySelectorAll(`input[name="p${qNum}"]:checked`)).map(c => c.value);
   const err = document.getElementById(`error-${qNum}`);
@@ -263,7 +314,6 @@ function goToStep(stepNum, shouldFocus = true) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Calcul de nivell final
 function calculateResult() {
   const selectedP5 = Array.from(document.querySelectorAll('input[name="p5"]:checked')).map(c => c.value);
   const err5 = document.getElementById('error-5');
@@ -301,7 +351,34 @@ function calculateResult() {
   goToStep('result');
 }
 
-// Renderitzacio de l'informe
+// Cerca intel·ligent sobre les dades descarregades en temps real des de SharePoint
+function searchReferents(userDept) {
+  if (!userDept || !REFERENTS_DATASET.length) return [];
+
+  const query = userDept.toLowerCase().trim();
+
+  // Cerquem primer referents d'automatització i IA
+  let matches = REFERENTS_DATASET.filter(ref => {
+    const isIA = ref.tipus.toLowerCase().includes("ia") || ref.tipus.toLowerCase().includes("automatització");
+    const deptMatch = ref.dept.toLowerCase().includes(query);
+    const unitMatch = ref.unitat.toLowerCase().includes(query);
+    const entMatch = ref.entitat.toLowerCase().includes(query);
+    return isIA && (deptMatch || unitMatch || entMatch);
+  });
+
+  // Si no trobem cap referent d'IA, busquem altres referents relacionats del departament
+  if (matches.length === 0) {
+    matches = REFERENTS_DATASET.filter(ref => {
+      const deptMatch = ref.dept.toLowerCase().includes(query);
+      const unitMatch = ref.unitat.toLowerCase().includes(query);
+      const entMatch = ref.entitat.toLowerCase().includes(query);
+      return deptMatch || unitMatch || entMatch;
+    });
+  }
+
+  return matches;
+}
+
 function renderReport() {
   const container = document.getElementById('report-container');
   if (!container) return;
@@ -309,7 +386,7 @@ function renderReport() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
 
-  // Analisi de respostes
+  // Anàlisi de les respostes
   let analysisHTML = '';
   for (let i = 1; i <= 5; i++) {
     const qKey = `p${i}`;
@@ -340,20 +417,44 @@ function renderReport() {
     `;
   }
 
-  // Dades de contacte condicionals
+  // Cerca automàtica de contactes en temps real
   let contactHTML = '';
   if (state.esPrimerAgent) {
     contactHTML = `
       <p><strong>Dades de contacte:</strong> Per a qualsevol dubte o per a la gestió de la sol·licitud d'acompanyament de l'Escola d'Agents, podeu adreçar-vos a la bústia <strong><a href="mailto:${EMAIL_GOVERNANCA}" class="text-red-700 underline font-medium">${EMAIL_GOVERNANCA}</a></strong> o directament a Alejandro Juridovic (<strong><a href="mailto:${EMAIL_ALEJANDRO}" class="text-red-700 underline font-medium">${EMAIL_ALEJANDRO}</a></strong>).</p>
     `;
   } else {
-    contactHTML = `
-      <p><strong>Dades de contacte:</strong> Per validar el vostre cas d'ús, si us plau consulteu el registre de referents d'automatització i IA de <strong>${escapeHtml(state.departament)}</strong> directament a SharePoint per trobar el correu electrònic del vostre referent assignat.</p>
-    `;
+    const referentsTrobats = searchReferents(state.departament);
+
+    if (referentsTrobats.length > 0) {
+      if (referentsTrobats.length === 1) {
+        const ref = referentsTrobats[0];
+        contactHTML = `
+          <p><strong>Dades de contacte:</strong> El referent d'automatització i IA assignat per al departament/ens <strong>${escapeHtml(state.departament)}</strong> és <strong>${escapeHtml(ref.nom)}</strong> ${ref.unitat ? '(' + escapeHtml(ref.unitat) + ')' : ''}: <a href="mailto:${ref.correu}" class="text-red-700 underline font-medium">${ref.correu}</a>.</p>
+        `;
+      } else {
+        let listItems = referentsTrobats.map(ref => 
+          `<li><strong>${escapeHtml(ref.nom)}</strong> ${ref.unitat ? '(' + escapeHtml(ref.unitat) + ')' : ''}: <a href="mailto:${ref.correu}" class="text-red-700 underline font-medium">${ref.correu}</a></li>`
+        ).join('');
+
+        contactHTML = `
+          <div>
+            <p class="mb-1"><strong>Dades de contacte:</strong> S'han trobat els següents referents assignats per a <strong>${escapeHtml(state.departament)}</strong>:</p>
+            <ul class="list-disc pl-5 space-y-1 text-sm">
+              ${listItems}
+            </ul>
+          </div>
+        `;
+      }
+    } else {
+      contactHTML = `
+        <p><strong>Dades de contacte:</strong> Per validar el vostre cas d'ús, si us plau consulteu el registre de referents d'automatització i IA de <strong>${escapeHtml(state.departament)}</strong> directament a SharePoint per trobar el correu electrònic del vostre referent assignat.</p>
+      `;
+    }
   }
 
   container.innerHTML = `
-    <!-- Capcalera Corporativa -->
+    <!-- Capçalera Corporativa -->
     <div class="border-b-2 border-red-700 pb-3 mb-4 print:pb-2 print:mb-3">
       <div class="flex justify-between items-center mb-1">
         <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Generalitat de Catalunya</span>
@@ -362,8 +463,8 @@ function renderReport() {
       <h2 id="heading-step-result" tabindex="-1" class="text-2xl font-bold text-slate-900 dark:text-white print:text-xl focus:outline-none">
         Informe de Valoració del Cas d'Ús d'IA
       </h2>
-      <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5 print:text-xs">
-        Avaluació del nivell de risc, autonomia i recomanacions d'implantació.
+      <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5 print:text-xs italic">
+        Per determinar el nivell d'un cas d'ús de IA d'acord amb la Política d'ús de la IA a la Generalitat de Catalunya
       </p>
     </div>
 
@@ -378,20 +479,20 @@ function renderReport() {
       </div>
     </div>
 
-    <!-- Resultat de la valoracio -->
+    <!-- Resultat de la valoració -->
     <div class="report-result-level my-4 p-4 rounded-xl border font-bold ${getLevelColorStyle(finalLevel)} print:p-2 print:my-2 print:text-xs">
       Resultat de la valoració: NIVELL FINAL ${finalLevel}
     </div>
 
-    <!-- Descripcio del nivell -->
+    <!-- Descripció del nivell -->
     <div class="report-body-text mb-5 p-4 bg-slate-100 dark:bg-slate-700/40 rounded-lg print:p-2 print:mb-2">
       <p class="italic text-slate-800 dark:text-slate-200 print:text-xs">"${normativeTexts[finalLevel]}"</p>
     </div>
 
-    <!-- Bloc de sol·licitud d'acompanyament (si escau) -->
+    <!-- Bloc de sol·licitud d'acompanyament -->
     ${firstAgentNoticeHTML}
 
-    <!-- Desplegable d'analisi de respostes -->
+    <!-- Desplegable d'anàlisi de respostes -->
     <details class="mb-5 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/40 group">
       <summary class="font-semibold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none text-sm select-none flex items-center justify-between">
         <span>Desplegar anàlisi de les respostes</span>
@@ -402,7 +503,7 @@ function renderReport() {
       </div>
     </details>
 
-    <!-- Dades de contacte adaptades -->
+    <!-- Dades de contacte en temps real -->
     <div class="report-body-text mb-5 text-sm print:text-xs print:mb-2">
       ${contactHTML}
     </div>
@@ -412,7 +513,7 @@ function renderReport() {
       Espero haver-te ajudat, però recorda contactar amb el teu interlocutor per confirmar la informació.
     </div>
 
-    <!-- Accions de tramitacio i gestio -->
+    <!-- Accions de tramitació -->
     <div class="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-700 no-print">
       <button onclick="startNewEvaluation()" class="btn-secondary w-full sm:w-auto">
         + Nova avaluació
@@ -433,7 +534,6 @@ function renderReport() {
   `;
 }
 
-// Genera text compactat correu electronic
 function generateEmailBody() {
   const finalLevel = state.computedFinalLevel;
   const questionLevels = state.computedQuestionLevels;
@@ -463,12 +563,10 @@ function generateEmailBody() {
   return bodyText;
 }
 
-// Imprimir / Generar PDF
 function printReport() {
   window.print();
 }
 
-// Enviar correu a l'Escola d'Agents
 function sendEmailReport() {
   const dept = state.departament || "Generalitat";
   const subject = encodeURIComponent(`[Avaluació IA] Proposta de cas d'ús - ${dept}`);
@@ -533,7 +631,6 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-// Navegacio amb tecla ENTER
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON')) return;

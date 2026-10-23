@@ -1,141 +1,62 @@
-/* Paleta oficial corporativa Generalitat de Catalunya */
-:root {
-  --gencat-primary: #C8102E;
-  --gencat-hover: #A00D24;
-  --gencat-light: #FDF2F4;
-  --gencat-dark: #4A0611;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply w-full sm:w-auto px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-medium rounded-lg transition-colors shadow-sm cursor-pointer disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700 text-center;
+  }
+  .btn-secondary {
+    @apply w-full sm:w-auto px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg border border-slate-300 dark:border-slate-600 transition-colors shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 text-center;
+  }
+  .step-card {
+    @apply bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 transition-all focus:outline-none;
+  }
 }
 
-/* Transició per a la barra de progrés superior */
-#top-progress-bar {
-  transition: width 0.5s ease-in-out;
-}
+/* Estils corporatius d'impressió i PDF (Format A4 Generalitat de Catalunya) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0.8cm 1cm !important;
+  }
 
-/* Fallbacks i utilitats de color */
-.bg-gencat {
-  background-color: var(--gencat-primary);
-}
+  button, 
+  #progress-bar-container, 
+  #top-progress-bar,
+  .no-print,
+  header,
+  footer {
+    display: none !important;
+  }
 
-.bg-gencat-hover:hover {
-  background-color: var(--gencat-hover);
-}
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+  }
 
-.bg-gencat-light {
-  background-color: var(--gencat-light);
-}
+  .step-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 
-.bg-gencat-dark {
-  background-color: var(--gencat-dark);
-}
+  /* Desplegar l'anàlisi de respostes automàticament al PDF */
+  details, details > * {
+    display: block !important;
+  }
 
-.text-gencat {
-  color: var(--gencat-primary);
-}
+  details summary {
+    display: none !important;
+  }
 
-.border-gencat {
-  border-color: var(--gencat-primary);
-}
-
-.focus\:ring-gencat:focus {
-  --tw-ring-color: var(--gencat-primary);
-}
-
-/* Targeta d'opcions del formulari */
-.option-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(226, 232, 240, 1);
-  background-color: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.dark .option-label {
-  border-color: rgba(51, 65, 85, 1);
-  background-color: rgba(30, 41, 59, 1);
-}
-
-.option-label:hover {
-  border-color: var(--gencat-primary);
-}
-
-/* Botons corporatius */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #ffffff;
-  background-color: var(--gencat-primary);
-  transition: background-color 0.2s ease;
-}
-
-.btn-primary:hover {
-  background-color: var(--gencat-hover);
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #334155;
-  background-color: #f1f5f9;
-  transition: background-color 0.2s ease;
-}
-
-.dark .btn-secondary {
-  color: #cbd5e1;
-  background-color: #334155;
-}
-
-.btn-secondary:hover {
-  background-color: #e2e8f0;
-}
-
-.dark .btn-secondary:hover {
-  background-color: #475569;
-}
-
-/* Estils de format de l'Informe Final */
-.report-document {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #1e293b;
-}
-
-.dark .report-document {
-  color: #f1f5f9;
-}
-
-.report-title {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14pt;
-  font-weight: bold;
-  line-height: 1.3;
-  color: #0f172a;
-}
-
-.dark .report-title {
-  color: #ffffff;
-}
-
-.report-body-text {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11pt;
-  line-height: 1.5;
-}
-
-.report-result-level {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
-  font-weight: bold;
+  #report-container {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
